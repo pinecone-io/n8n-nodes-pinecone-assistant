@@ -11,7 +11,7 @@ export class PineconeAssistant implements INodeType {
 		displayName: 'Pinecone Assistant',
 		name: 'pineconeAssistant',
 		icon: { light: 'file:pinecone.svg', dark: 'file:pinecone.dark.svg' },
-		group: ['input'],
+		group: ['transform'],
 		version: 1,
 		description: 'A Pinecone Assistant node for n8n',
 		defaults: {
@@ -20,6 +20,13 @@ export class PineconeAssistant implements INodeType {
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
+		credentials: [
+			{
+				name: 'pineconeAssistantApi',
+				required: true,
+			},
+		],
+		subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
 		properties: [
 			// Node properties which the user gets displayed and
 			// can change on the node.
@@ -31,6 +38,86 @@ export class PineconeAssistant implements INodeType {
 				placeholder: 'Placeholder value',
 				description: 'The description text',
 			},
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Assistant',
+						value: 'assistant',
+					},
+					{
+						name: 'File',
+						value: 'file',
+					},
+				],
+				default: 'assistant',
+				required: true
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				description: 'The operation to use for Pinecone Assistant',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['assistant'],
+					},
+				},
+				options: [
+					{
+						name: 'List Assistants',
+						value: 'listAssistants',
+						description: 'List all assistants in my Pinecone account',
+						action: 'List all assistants',
+					},
+				],
+				default: 'listAssistants',
+				required: true,
+				noDataExpression: true,
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				description: 'The operation to use for Pinecone Assistant',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['file'],
+					},
+				},
+				options: [
+					{
+						name: 'List Files',
+						value: 'listFiles',
+						description: 'List all files in my Pinecone Assistant',
+						action: 'List files',
+					},
+					{
+						name: 'Upload File',
+						value: 'uploadFile',
+						description: 'Upload a file to my Pinecone Assistant',
+						action: 'Upload file',
+					},
+					{
+						name: 'Update File',
+						value: 'updateFile',
+						description: 'Update an existing file in my Pinecone Assistant',
+						action: 'Update file',
+					},
+					{
+						name: 'Delete File',
+						value: 'deleteFile',
+						description: 'Delete a file from my Pinecone Assistant',
+						action: 'Delete file',
+					},
+				],
+				default: 'listFiles',
+				required: true,
+				noDataExpression: true,
+			}
 		],
 	};
 
