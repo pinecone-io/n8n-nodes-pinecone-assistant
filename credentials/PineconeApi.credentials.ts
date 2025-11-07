@@ -33,6 +33,8 @@ export class PineconeApi implements ICredentialType {
             properties: {
                     headers: {
                             'Api-key': '={{$credentials.apiKey}}',
+                            'X-Pinecone-API-Version': '2025-04',
+                            'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
                     },
             },
     };
