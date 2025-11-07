@@ -1,10 +1,18 @@
 import type {
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { apiRequest } from './genericFunctions';
+
+interface AssistantType {
+	name: string;
+	host: string;
+}
 
 export class PineconeAssistant implements INodeType { 
 	description: INodeTypeDescription = {
@@ -28,16 +36,6 @@ export class PineconeAssistant implements INodeType {
 		],
 		subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
 		properties: [
-			// Node properties which the user gets displayed and
-			// can change on the node.
-			{
-				displayName: 'My String',
-				name: 'myString',
-				type: 'string',
-				default: '',
-				placeholder: 'Placeholder value',
-				description: 'The description text',
-			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -117,14 +115,51 @@ export class PineconeAssistant implements INodeType {
 				default: 'listFiles',
 				required: true,
 				noDataExpression: true,
-			}
+			},
+			{
+				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
+				displayName: 'Assistant Name',
+				name: 'assistantName',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getAssistants',
+				},
+				options: [],
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['listFiles', 'uploadFile', 'updateFile', 'deleteFile'],
+						resource: ['file'],
+					},
+				},
+				// eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
+				description:
+					'The name of the Pinecone Assistant to work with. Choose from the list, or specify a name using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			},
 		],
 	};
 
-	// The function below is responsible for actually doing whatever this node
-	// is supposed to do. In this case, we're just appending the `myString` property
-	// with whatever the user has entered.
-	// You can make async calls and use `await`.
+	methods = {
+		loadOptions: {
+			async getAssistants(
+				this: ILoadOptionsFunctions,
+			): Promise<INodePropertyOptions[]> {
+				const { assistants } = await apiRequest.call(
+					this,
+					'GET',
+					'assistants',
+					{}
+				) as { assistants: AssistantType[] };
+				return assistants.map((assistant) => ({
+					name: assistant.name,
+					value: assistant.host,
+				}));
+			},
+		},
+	};
+
+	// TODO: Implement the execute function
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 
