@@ -50,6 +50,10 @@ export class PineconeAssistant implements INodeType {
 						name: 'File',
 						value: 'file',
 					},
+					{
+						name: 'Context Snippet',
+						value: 'contextSnippet',
+					},
 				],
 				default: 'assistant',
 				required: true
@@ -117,6 +121,28 @@ export class PineconeAssistant implements INodeType {
 				noDataExpression: true,
 			},
 			{
+				displayName: 'Operation',
+				name: 'operation',
+				description: 'The operation to use for Pinecone Assistant',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['contextSnippet'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Context Snippets',
+						value: 'getContextSnippets',
+						description: 'Get context snippets for a given assistant',
+						action: 'Get context snippets',
+					}
+				],
+				default: 'getContextSnippets',
+				required: true,
+				noDataExpression: true,
+			},
+			{
 				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
 				displayName: 'Assistant Name',
 				name: 'assistantName',
@@ -129,8 +155,8 @@ export class PineconeAssistant implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['listFiles', 'uploadFile', 'updateFile', 'deleteFile'],
-						resource: ['file'],
+						operation: ['listFiles', 'uploadFile', 'updateFile', 'deleteFile', 'getContextSnippets'],
+						resource: ['file', 'contextSnippet'],
 					},
 				},
 				// eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
