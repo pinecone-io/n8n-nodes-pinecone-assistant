@@ -13,6 +13,7 @@ import {
 export async function apiRequest(
 	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
+    baseUrl: string,
 	endpoint: string,
 	body: object,
 	query?: IDataObject,
@@ -23,7 +24,7 @@ export async function apiRequest(
         method,
 		body,
 		qs: query,
-		url: `https://api.pinecone.io/assistant/${endpoint}`,
+		url: `${baseUrl}/assistant/${endpoint}`,
 		json: true,
         headers: {
             'X-Pinecone-API-Version': '2025-04',
