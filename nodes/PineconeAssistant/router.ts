@@ -1,8 +1,11 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData, NodeOperationError } from "n8n-workflow";
 
 import * as contextSnippets from './contextSnippets';
+import * as assistants from './assistants';
+import * as files from './files';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+        this.logger.debug(`Router called`);
     	const items = this.getInputData();
 		this.logger.debug(`Items: ${JSON.stringify(items)}`);
         const returnData: INodeExecutionData[] = [];
@@ -10,18 +13,20 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const assistantHostUrl = this.getNodeParameter('assistantHostUrl', 0) as string;
-		
+				
 		this.logger.debug(`Resource: ${resource}`);
 		this.logger.debug(`Operation: ${operation}`);
-		this.logger.debug(`Assistant Host URL: ${assistantHostUrl}`);
-
+		
         for (let i = 0; i < items.length; i++) {
             try {
-                if (resource === 'contextSnippet') {
+                if (resource === 'contextSnippet' && operation === 'getContextSnippets') {
                     responseData = await contextSnippets.execute.call(this, i);
+                } else if (resource === 'assistant' && operation === 'listAssistants') {
+                    responseData = await assistants.execute.call(this);
+                } else if (resource === 'file' && operation === 'listFiles') {
+                    responseData = await files.execute.call(this, i);
                 } else {
-					throw new NodeOperationError(this.getNode(), `Unknown resource: "${resource}"`, {
+					throw new NodeOperationError(this.getNode(), `Unhandled resource/operation: "${resource}" / "${operation}"`, {
 						itemIndex: i,
 					});
 				}

@@ -6,13 +6,8 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
-import { apiRequest } from './genericFunctions';
+import { apiRequest, AssistantData } from './genericFunctions';
 import { router } from './router';
-
-interface AssistantType {
-	name: string;
-	host: string;
-}
 
 export class PineconeAssistant implements INodeType { 
 	description: INodeTypeDescription = {
@@ -150,7 +145,7 @@ export class PineconeAssistant implements INodeType {
 			{
 				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
 				displayName: 'Assistant Name',
-				name: 'assistantHostUrl',
+				name: 'assistantData',
 				type: 'options',
 				typeOptions: {
 					loadOptionsMethod: 'getAssistants',
@@ -174,6 +169,12 @@ export class PineconeAssistant implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
+				displayOptions: {
+					show: {
+						operation: ['getContextSnippets'],
+						resource: ['contextSnippet'],
+					},
+				},
 			},
 		],
 	};
@@ -189,11 +190,11 @@ export class PineconeAssistant implements INodeType {
 					'https://api.pinecone.io',
 					'assistants',
 					{}
-				) as { assistants: AssistantType[] };
-				// TODO fix issue where there are multiple assistants and you can't select the correct one
+				) as { assistants: Array<AssistantData> };
+				
 				return assistants.map((assistant) => ({
 					name: assistant.name,
-					value: assistant.host,
+					value: JSON.stringify({ name: assistant.name, host: assistant.host }),
 				}));
 			},
 		},

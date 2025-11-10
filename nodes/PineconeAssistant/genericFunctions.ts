@@ -7,6 +7,11 @@ import {
 	type IHttpRequestOptions
 } from 'n8n-workflow';
 
+export interface AssistantData {
+	name: string;
+	host: string;
+}
+
 /**
  * Make an API request to Pinecone Assistant
  */
