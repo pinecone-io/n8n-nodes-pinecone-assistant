@@ -176,6 +176,67 @@ export class PineconeAssistant implements INodeType {
 					},
 				},
 			},
+			{
+				displayName: 'Input Data Field Name',
+				name: 'inputDataFieldName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['uploadFile'],
+						resource: ['file'],
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add field',
+				default: {},
+				displayOptions: {
+					show: {
+						operation: ['uploadFile'],
+						resource: ['file'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Metadata',
+						name: 'metadata',
+						placeholder: 'Add metadata',
+						type: 'fixedCollection',
+						default: {},
+						typeOptions: {
+							multipleValues: true,
+						},
+						description: 'A collection of metadata to add to the file',
+						options: [
+							{
+								name: 'metadataValues',
+								displayName: 'Metadata',
+								values: [
+									{
+										displayName: 'Key',
+										name: 'key',
+										type: 'string',
+										default: '',
+										description: 'Name of the metadata to add',
+									},
+									{
+										displayName: 'Value',
+										name: 'value',
+										type: 'string',
+										default: '',
+										description: 'Value to set for the metadata',
+									},
+								],
+							},
+						],
+					},
+				],
+			},
 		],
 	};
 

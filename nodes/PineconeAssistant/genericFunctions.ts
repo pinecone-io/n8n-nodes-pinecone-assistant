@@ -13,6 +13,41 @@ export interface AssistantData {
 }
 
 /**
+ * Check if body contains file data (for multipart/form-data)
+ */
+function hasFileData(body: object): boolean {
+	if (!body || typeof body !== 'object') {
+		return false;
+	}
+	
+	for (const value of Object.values(body)) {
+		if (value && typeof value === 'object') {
+			// Check if it's a file object with value property containing Buffer
+			// Format: { fieldName: { value: Buffer, options: { filename: string, contentType?: string } } }
+			if ('value' in value && Buffer.isBuffer(value.value)) {
+				return true;
+			}
+			// Also check old format: { fieldName: { data: Buffer, filename: string, contentType?: string } }
+			if ('data' in value && Buffer.isBuffer(value.data)) {
+				return true;
+			}
+			// Also check if value is directly a Buffer
+			if (Buffer.isBuffer(value)) {
+				return true;
+			}
+			// Recursively check nested objects
+			if (hasFileData(value)) {
+				return true;
+			}
+		} else if (Buffer.isBuffer(value)) {
+			// Direct Buffer value
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * Make an API request to Pinecone Assistant
  */
 export async function apiRequest(
@@ -24,19 +59,24 @@ export async function apiRequest(
 	query?: IDataObject,
 ): Promise<unknown> {
 	query = query || {};
-    
 	const options: IHttpRequestOptions = {
         method,
 		body,
 		qs: query,
 		url: `${baseUrl}/assistant/${endpoint}`,
-		json: true,
         headers: {
             'X-Pinecone-API-Version': '2025-04',
             'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
 		},
 	};
-    
+	
+    const isMultipart = hasFileData(body);
+	// For multipart/form-data, don't set json and don't manually set Content-Type
+	// n8n's httpRequestWithAuthentication will automatically detect the body structure and set Content-Type with boundary
+	if (!isMultipart) {
+		options.json = true;
+	}
+	 
 	if (method === 'GET') {
         delete options.body;
 	}

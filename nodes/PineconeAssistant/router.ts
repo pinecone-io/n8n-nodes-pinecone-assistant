@@ -25,7 +25,10 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
                     responseData = await assistants.execute.call(this);
                 } else if (resource === 'file' && operation === 'listFiles') {
                     responseData = await files.execute.call(this, i);
-                } else {
+                } else if (resource === 'file' && operation === 'uploadFile') {
+                    responseData = await files.uploadFile.call(this, i);
+                }
+                 else {
 					throw new NodeOperationError(this.getNode(), `Unhandled resource/operation: "${resource}" / "${operation}"`, {
 						itemIndex: i,
 					});
