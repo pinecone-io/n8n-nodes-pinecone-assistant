@@ -4,12 +4,12 @@ import * as genericFunctions from '../genericFunctions';
 
 // Mock the genericFunctions module
 jest.mock('../genericFunctions', () => ({
-	apiRequest: jest.fn(),
+	getFiles: jest.fn(),
 }));
 
 describe('listFiles.execute', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
-	const mockApiRequest = genericFunctions.apiRequest as jest.MockedFunction<typeof genericFunctions.apiRequest>;
+	const mockGetFiles = genericFunctions.getFiles as jest.MockedFunction<typeof genericFunctions.getFiles>;
 
 	beforeEach(() => {
 		// Reset mocks before each test
@@ -41,7 +41,7 @@ describe('listFiles.execute', () => {
 		];
 
 		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
@@ -49,12 +49,9 @@ describe('listFiles.execute', () => {
 
 		// Assert
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('assistantData', index);
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'GET',
+		expect(mockGetFiles).toHaveBeenCalledWith(
+			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			'files/test-assistant',
-			{},
-			{},
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -71,19 +68,16 @@ describe('listFiles.execute', () => {
 		const mockReturnData: INodeExecutionData[] = [];
 
 		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
 		const result = await execute.call(mockExecuteFunctions, index);
 
 		// Assert
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'GET',
+		expect(mockGetFiles).toHaveBeenCalledWith(
+			'empty-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			'files/empty-assistant',
-			{},
-			{},
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -100,19 +94,16 @@ describe('listFiles.execute', () => {
 		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file1' } }];
 
 		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
 		await execute.call(mockExecuteFunctions, index);
 
 		// Assert
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'GET',
+		expect(mockGetFiles).toHaveBeenCalledWith(
+			'my-custom-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			'files/my-custom-assistant',
-			{},
-			{},
 		);
 	});
 
@@ -126,11 +117,14 @@ describe('listFiles.execute', () => {
 		const error = new Error('API request failed');
 
 		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
-		mockApiRequest.mockRejectedValue(error);
+		mockGetFiles.mockRejectedValue(error);
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow('API request failed');
-		expect(mockApiRequest).toHaveBeenCalled();
+		expect(mockGetFiles).toHaveBeenCalledWith(
+			'test-assistant',
+			'https://prod-1-data.ke.pinecone.io',
+		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 });

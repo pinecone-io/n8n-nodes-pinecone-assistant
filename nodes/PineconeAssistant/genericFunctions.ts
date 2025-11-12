@@ -84,3 +84,7 @@ export async function apiRequest(
 
     return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
+
+export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string): Promise<unknown> {
+	return await apiRequest.call(this, 'GET', assistantHostUrl, `files/${assistantName}`, {});
+}
