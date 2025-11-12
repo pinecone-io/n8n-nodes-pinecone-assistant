@@ -1,8 +1,9 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData, NodeOperationError } from "n8n-workflow";
 
-import * as contextSnippets from './contextSnippets';
-import * as assistants from './assistants';
-import * as files from './files';
+import * as getContextSnippets from './actions/getContextSnippets';
+import * as listAssistants from './actions/listAssistants';
+import * as listFiles from './actions/listFiles';
+import * as uploadFile from './actions/uploadFile';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
         this.logger.debug(`Router called`);
@@ -20,13 +21,13 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
         for (let i = 0; i < items.length; i++) {
             try {
                 if (resource === 'contextSnippet' && operation === 'getContextSnippets') {
-                    responseData = await contextSnippets.execute.call(this, i);
+                    responseData = await getContextSnippets.execute.call(this, i);
                 } else if (resource === 'assistant' && operation === 'listAssistants') {
-                    responseData = await assistants.execute.call(this);
+                    responseData = await listAssistants.execute.call(this);
                 } else if (resource === 'file' && operation === 'listFiles') {
-                    responseData = await files.execute.call(this, i);
+                    responseData = await listFiles.execute.call(this, i);
                 } else if (resource === 'file' && operation === 'uploadFile') {
-                    responseData = await files.uploadFile.call(this, i);
+                    responseData = await uploadFile.execute.call(this, i);
                 }
                  else {
 					throw new NodeOperationError(this.getNode(), `Unhandled resource/operation: "${resource}" / "${operation}"`, {

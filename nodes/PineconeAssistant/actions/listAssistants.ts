@@ -1,6 +1,6 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData } from 'n8n-workflow';
 
-import { apiRequest } from './genericFunctions';
+import { apiRequest } from '../genericFunctions';
 
 export async function execute(this: IExecuteFunctions): Promise<INodeExecutionData[]> {	
 	const body = {} as IDataObject;
@@ -13,3 +13,4 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }
+

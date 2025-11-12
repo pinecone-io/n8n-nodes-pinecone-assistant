@@ -1,12 +1,19 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
-import { apiRequest, type AssistantData } from './genericFunctions';
+import { apiRequest, type AssistantData } from '../genericFunctions';
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData[]> {
 	const assistantData = this.getNodeParameter('assistantData', index) as string;
 	const { name: assistantName, host: assistantHostUrl } = JSON.parse(assistantData) as AssistantData;
 	
     const query = this.getNodeParameter('query', index) as string;
+    
+	if (!query || query.trim() === '') {
+		throw new NodeOperationError(this.getNode(), 'Query parameter is required and cannot be empty', {
+			itemIndex: index,
+		});
+	}
     
 	const body = {} as IDataObject;
 	const qs = {} as IDataObject;
@@ -21,3 +28,4 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }
+
