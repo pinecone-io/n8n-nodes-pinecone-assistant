@@ -223,6 +223,7 @@ export class PineconeAssistant implements INodeType {
 										type: 'string',
 										default: '',
 										description: 'Name of the metadata to add',
+										required: true,
 									},
 									{
 										displayName: 'Value',
@@ -230,6 +231,57 @@ export class PineconeAssistant implements INodeType {
 										type: 'string',
 										default: '',
 										description: 'Value to set for the metadata',
+										required: true,
+									},
+								],
+							},
+						],
+					}
+				],
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add field',
+				default: {},
+				displayOptions: {
+					show: {
+						operation: ['listFiles'],
+						resource: ['file'],
+					},
+				},
+				options: [					
+					{
+						displayName: 'Metadata Filter',
+						name: 'metadataFilter',
+						placeholder: 'Add metadata',
+						type: 'fixedCollection',
+						default: {},
+						typeOptions: {
+							multipleValues: true,
+						},
+						description: 'A collection of metadata to filter by',
+						options: [
+							{
+								name: 'metadataFilterValues',
+								displayName: 'Metadata Filter',
+								values: [
+									{
+										displayName: 'Key',
+										name: 'key',
+										type: 'string',
+										default: '',
+										description: 'Metadata key',
+										required: true,
+									},
+									{
+										displayName: 'Value',
+										name: 'value',
+										type: 'string',
+										default: '',
+										description: 'Metadata value',
+										required: true,
 									},
 								],
 							},

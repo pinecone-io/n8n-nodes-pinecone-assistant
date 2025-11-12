@@ -40,7 +40,15 @@ describe('listFiles.execute', () => {
 			{ json: { id: 'file2', name: 'document.docx' } },
 		];
 
-		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
+		mockExecuteFunctions.getNodeParameter = jest.fn().mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') {
+				return assistantData;
+			}
+			if (paramName === 'additionalFields') {
+				return {};
+			}
+			return undefined;
+		});
 		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
@@ -49,9 +57,11 @@ describe('listFiles.execute', () => {
 
 		// Assert
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('assistantData', index);
+		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('additionalFields', index);
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -67,7 +77,15 @@ describe('listFiles.execute', () => {
 		const mockResponseData: unknown[] = [];
 		const mockReturnData: INodeExecutionData[] = [];
 
-		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
+		mockExecuteFunctions.getNodeParameter = jest.fn().mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') {
+				return assistantData;
+			}
+			if (paramName === 'additionalFields') {
+				return {};
+			}
+			return undefined;
+		});
 		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
@@ -78,6 +96,7 @@ describe('listFiles.execute', () => {
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'empty-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -93,7 +112,15 @@ describe('listFiles.execute', () => {
 		const mockResponseData = [{ id: 'file1' }];
 		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file1' } }];
 
-		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
+		mockExecuteFunctions.getNodeParameter = jest.fn().mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') {
+				return assistantData;
+			}
+			if (paramName === 'additionalFields') {
+				return {};
+			}
+			return undefined;
+		});
 		mockGetFiles.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
@@ -104,6 +131,7 @@ describe('listFiles.execute', () => {
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'my-custom-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 		);
 	});
 
@@ -116,7 +144,15 @@ describe('listFiles.execute', () => {
 		});
 		const error = new Error('API request failed');
 
-		mockExecuteFunctions.getNodeParameter = jest.fn().mockReturnValue(assistantData);
+		mockExecuteFunctions.getNodeParameter = jest.fn().mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') {
+				return assistantData;
+			}
+			if (paramName === 'additionalFields') {
+				return {};
+			}
+			return undefined;
+		});
 		mockGetFiles.mockRejectedValue(error);
 
 		// Act & Assert
@@ -124,8 +160,57 @@ describe('listFiles.execute', () => {
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
+	});
+
+	it('should pass metadata filter to API call when provided', async () => {
+		// Arrange
+		const index = 0;
+		const assistantData = JSON.stringify({
+			name: 'test-assistant',
+			host: 'https://prod-1-data.ke.pinecone.io',
+		});
+		const additionalFields = {
+			metadataFilter: {
+				metadataFilterValues: [
+					{ key: 'category', value: 'documentation' }
+				],
+			},
+		};
+		const mockResponseData = [
+			{ id: 'file1', name: 'test.pdf', metadata: { category: 'documentation', status: 'active' } },
+		];
+		const mockReturnData: INodeExecutionData[] = [
+			{ json: { id: 'file1', name: 'test.pdf', metadata: { category: 'documentation', status: 'active' } } },
+		];
+
+		mockExecuteFunctions.getNodeParameter = jest.fn().mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') {
+				return assistantData;
+			}
+			if (paramName === 'additionalFields') {
+				return additionalFields;
+			}
+			return undefined;
+		});
+		mockGetFiles.mockResolvedValue(mockResponseData);
+		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+		// Act
+		const result = await execute.call(mockExecuteFunctions, index);
+
+		// Assert
+		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('assistantData', index);
+		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('additionalFields', index);
+		expect(mockGetFiles).toHaveBeenCalledWith(
+			'test-assistant',
+			'https://prod-1-data.ke.pinecone.io',
+			additionalFields.metadataFilter,
+		);
+		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
+		expect(result).toEqual(mockReturnData);
 	});
 });
 

@@ -85,6 +85,28 @@ export async function apiRequest(
     return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
 
-export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string): Promise<unknown> {
-	return await apiRequest.call(this, 'GET', assistantHostUrl, `files/${assistantName}`, {});
+export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, metadataFilter: IDataObject | undefined): Promise<unknown> {
+	let endpoint = `files/${assistantName}`;
+	this.logger.debug(`Metadata filter: ${JSON.stringify(metadataFilter)}`);
+	// Filter by metadata
+	if (metadataFilter && metadataFilter.metadataFilterValues) {
+		const values = metadataFilter.metadataFilterValues as IDataObject[] || [];
+
+		this.logger.debug(`Values: ${JSON.stringify(values)}`);
+		
+		// Only add filter if there are actual values to filter by
+		if (values.length > 0) {
+			const metadataFilterValues = values.reduce(
+				(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
+				{} as IDataObject,
+			);
+
+			this.logger.debug(`Metadata filter values: ${JSON.stringify(metadataFilterValues)}`);
+			
+			endpoint += `?filter=${encodeURIComponent(JSON.stringify(metadataFilterValues))}`;
+			this.logger.debug(`Endpoint: ${endpoint}`);
+		}
+	}
+
+	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {});
 }
