@@ -15,7 +15,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
     const fileId = await getFileIdByExternalFileId.call(this, assistantName, assistantHostUrl, externalFileId);
 	
     if (!fileId) {
-        throw new NodeOperationError(this.getNode(), `File with external file ID ${externalFileId} not found.`);
+        throw new NodeOperationError(this.getNode(), `File with external file ID ${externalFileId} not found or more than one file found.`);
     }
     
     // delete file by id

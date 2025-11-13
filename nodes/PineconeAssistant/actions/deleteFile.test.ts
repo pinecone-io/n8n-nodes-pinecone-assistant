@@ -143,7 +143,7 @@ describe('deleteFile.execute', () => {
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
-			'File with external file ID external-123 not found.',
+			'File with external file ID external-123 not found or more than one file found.',
 		);
 		expect(mockGetFileIdByExternalFileId).toHaveBeenCalledWith(
 			'test-assistant',
