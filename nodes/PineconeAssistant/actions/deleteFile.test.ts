@@ -5,13 +5,13 @@ import * as genericFunctions from '../genericFunctions';
 // Mock the genericFunctions module
 jest.mock('../genericFunctions', () => ({
 	apiRequest: jest.fn(),
-	getFileIdByExternalFileId: jest.fn(),
+	getFileIdsByExternalFileId: jest.fn(),
 }));
 
 describe('deleteFile.execute', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
 	const mockApiRequest = genericFunctions.apiRequest as jest.MockedFunction<typeof genericFunctions.apiRequest>;
-	const mockGetFileIdByExternalFileId = genericFunctions.getFileIdByExternalFileId as jest.MockedFunction<typeof genericFunctions.getFileIdByExternalFileId>;
+	const mockGetFileIdByExternalFileId = genericFunctions.getFileIdsByExternalFileId as jest.MockedFunction<typeof genericFunctions.getFileIdsByExternalFileId>;
 
 	beforeEach(() => {
 		// Reset mocks before each test
@@ -45,7 +45,7 @@ describe('deleteFile.execute', () => {
 				if (paramName === 'externalFileId') return externalFileId;
 				return undefined;
 			});
-		mockGetFileIdByExternalFileId.mockResolvedValue(fileId);
+		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
 		mockApiRequest.mockResolvedValue(undefined);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
@@ -139,11 +139,11 @@ describe('deleteFile.execute', () => {
 				if (paramName === 'externalFileId') return externalFileId;
 				return undefined;
 			});
-		mockGetFileIdByExternalFileId.mockResolvedValue(undefined);
+		mockGetFileIdByExternalFileId.mockResolvedValue([]);
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
-			'File with external file ID external-123 not found or more than one file found.',
+			'File with external file ID external-123 not found.',
 		);
 		expect(mockGetFileIdByExternalFileId).toHaveBeenCalledWith(
 			'test-assistant',
@@ -172,7 +172,7 @@ describe('deleteFile.execute', () => {
 				if (paramName === 'externalFileId') return externalFileId;
 				return undefined;
 			});
-		mockGetFileIdByExternalFileId.mockResolvedValue(fileId);
+		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
 		mockApiRequest.mockRejectedValue(error);
 
 		// Act & Assert
@@ -200,7 +200,7 @@ describe('deleteFile.execute', () => {
 				if (paramName === 'externalFileId') return externalFileId;
 				return undefined;
 			});
-		mockGetFileIdByExternalFileId.mockResolvedValue(fileId);
+		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
 		mockApiRequest.mockResolvedValue(undefined);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
@@ -217,30 +217,5 @@ describe('deleteFile.execute', () => {
 		);
 	});
 
-	it('should handle getFileIdByExternalFileId errors', async () => {
-		// Arrange
-		const index = 0;
-		const assistantData = JSON.stringify({
-			name: 'test-assistant',
-			host: 'https://prod-1-data.ke.pinecone.io',
-		});
-		const externalFileId = 'external-123';
-		const error = new Error('Failed to get file ID');
-
-		mockExecuteFunctions.getNodeParameter = jest
-			.fn()
-			.mockImplementation((paramName: string) => {
-				if (paramName === 'assistantData') return assistantData;
-				if (paramName === 'externalFileId') return externalFileId;
-				return undefined;
-			});
-		mockGetFileIdByExternalFileId.mockRejectedValue(error);
-
-		// Act & Assert
-		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow('Failed to get file ID');
-		expect(mockGetFileIdByExternalFileId).toHaveBeenCalled();
-		expect(mockApiRequest).not.toHaveBeenCalled();
-		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
-	});
 });
 

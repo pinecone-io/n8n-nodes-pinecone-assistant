@@ -111,11 +111,8 @@ export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadO
 	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {});
 }
 
-export async function getFileIdByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string): Promise<string | undefined> {
+export async function getFileIdsByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string): Promise<string[]> {
 	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, { metadataFilterValues: [{ key: 'external_file_id', value: externalFileId }] }) as { files: IDataObject[] };
 
-	if (files.length === 1) {
-		return files[0].id as string;
-	}
-	return undefined;
+	return files.map(file => file.id as string);
 }

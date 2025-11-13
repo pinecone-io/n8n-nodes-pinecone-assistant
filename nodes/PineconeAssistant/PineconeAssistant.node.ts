@@ -201,7 +201,7 @@ export class PineconeAssistant implements INodeType {
 						resource: ['file'],
 					},
 				},
-				description: 'The external file ID to identify the file in the Pinecone Assistant',
+				description: 'The external file ID to identify the file in the Pinecone Assistant. If there are multiple files with the same external file ID, this operation will apply to all files.',
 			},
 			{
 				displayName: 'Additional Fields',

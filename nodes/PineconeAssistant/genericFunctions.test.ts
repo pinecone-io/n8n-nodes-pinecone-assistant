@@ -2,7 +2,7 @@ import type {
 	IExecuteFunctions,
 	IDataObject,
 } from 'n8n-workflow';
-import { apiRequest, getFiles, getFileIdByExternalFileId } from './genericFunctions';
+import { apiRequest, getFiles, getFileIdsByExternalFileId } from './genericFunctions';
 
 describe('genericFunctions', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
@@ -448,7 +448,7 @@ describe('genericFunctions', () => {
 	});
 
 	describe('getFileIdByExternalFileId', () => {
-		it('should return file ID when exactly one file is found', async () => {
+		it('should return list of file IDs when exactly one file is found', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
@@ -462,7 +462,7 @@ describe('genericFunctions', () => {
 			mockHttpRequest.mockResolvedValue(mockResponse);
 
 			// Act
-			const result = await getFileIdByExternalFileId.call(
+			const result = await getFileIdsByExternalFileId.call(
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
@@ -470,7 +470,7 @@ describe('genericFunctions', () => {
 			);
 
 			// Assert
-			expect(result).toBe('file-456');
+			expect(result).toEqual(['file-456']);
 			const callArgs = mockHttpRequest.mock.calls[0][1];
 			expect(callArgs.url).toContain('files/test-assistant?filter=');
 			const filterParam = callArgs.url.split('?filter=')[1];
@@ -478,7 +478,7 @@ describe('genericFunctions', () => {
 			expect(decodedFilter).toEqual({ external_file_id: 'external-123' });
 		});
 
-		it('should return undefined when no files are found', async () => {
+		it('should return empty array when no files are found', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
@@ -490,7 +490,7 @@ describe('genericFunctions', () => {
 			mockHttpRequest.mockResolvedValue(mockResponse);
 
 			// Act
-			const result = await getFileIdByExternalFileId.call(
+			const result = await getFileIdsByExternalFileId.call(
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
@@ -498,10 +498,10 @@ describe('genericFunctions', () => {
 			);
 
 			// Assert
-			expect(result).toBeUndefined();
+			expect(result).toEqual([]);
 		});
 
-		it('should return undefined when more than one file is found', async () => {
+		it('should return list of file IDs when more than one file is found', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
@@ -516,7 +516,7 @@ describe('genericFunctions', () => {
 			mockHttpRequest.mockResolvedValue(mockResponse);
 
 			// Act
-			const result = await getFileIdByExternalFileId.call(
+			const result = await getFileIdsByExternalFileId.call(
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
@@ -524,7 +524,7 @@ describe('genericFunctions', () => {
 			);
 
 			// Assert
-			expect(result).toBeUndefined();
+			expect(result).toEqual(['file-456', 'file-789']);
 			const callArgs = mockHttpRequest.mock.calls[0][1];
 			expect(callArgs.url).toContain('files/test-assistant?filter=');
 			const filterParam = callArgs.url.split('?filter=')[1];
