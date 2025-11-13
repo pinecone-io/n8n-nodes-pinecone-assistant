@@ -1,4 +1,4 @@
-import { type IExecuteFunctions, type IDataObject, type INodeExecutionData } from 'n8n-workflow';
+import { type IExecuteFunctions, type IDataObject, type INodeExecutionData, NodeOperationError } from 'n8n-workflow';
 
 import { apiRequest, type AssistantData } from '../genericFunctions';
 
@@ -12,20 +12,25 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	let endpoint = `files/${assistantName}`;
 	
 	// Handle additional fields - metadata
+	let metadataValues = {} as IDataObject;
 	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
 	if (additionalFields && additionalFields.metadata) {
 		const values =
 		((additionalFields.metadata as IDataObject).metadataValues as IDataObject[]) || [];
 		
-		const metadataValues = values.reduce(
+		metadataValues = values.reduce(
 			(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
 			{} as IDataObject,
 		);
-		
-		// TODO add external file id to metadata
-		
-		endpoint += `?metadata=${encodeURIComponent(JSON.stringify(metadataValues))}`;
 	}
+	
+	// Add external file id to metadata
+	const externalFileId = this.getNodeParameter('externalFileId', index) as string;
+	if (!externalFileId) {
+		throw new NodeOperationError(this.getNode(), 'An external file ID is required to upload a file.');
+	}
+	metadataValues.external_file_id = externalFileId;
+	endpoint += `?metadata=${encodeURIComponent(JSON.stringify(metadataValues))}`;
 
 	// Get binary data from input
 	const binaryData = this.helpers.assertBinaryData(index, inputDataFieldName);

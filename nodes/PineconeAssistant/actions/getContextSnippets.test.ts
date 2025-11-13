@@ -207,13 +207,13 @@ describe('getContextSnippets.execute', () => {
 		});
 		const query = '';
 
-			mockExecuteFunctions.getNodeParameter = jest
-			.fn()
-			.mockImplementation((paramName: string) => {
-				if (paramName === 'assistantData') return assistantData;
-				if (paramName === 'query') return query;
-				return undefined;
-			});
+		mockExecuteFunctions.getNodeParameter = jest
+		.fn()
+		.mockImplementation((paramName: string) => {
+			if (paramName === 'assistantData') return assistantData;
+			if (paramName === 'query') return query;
+			return undefined;
+		});
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
