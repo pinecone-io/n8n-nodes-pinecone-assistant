@@ -2,7 +2,7 @@ import type {
 	IExecuteFunctions,
 	IDataObject,
 } from 'n8n-workflow';
-import { apiRequest, getFiles } from './genericFunctions';
+import { apiRequest, getFiles, getFileIdByExternalFileId } from './genericFunctions';
 
 describe('genericFunctions', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
@@ -444,6 +444,92 @@ describe('genericFunctions', () => {
 			const callArgs = mockHttpRequest.mock.calls[0][1];
 			expect(callArgs.url).toBe(`${assistantHostUrl}/assistant/files/${assistantName}`);
 			expect(callArgs.url).not.toContain('?filter=');
+		});
+	});
+
+	describe('getFileIdByExternalFileId', () => {
+		it('should return file ID when exactly one file is found', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const mockResponse = {
+				files: [
+					{ id: 'file-456', name: 'test.pdf', metadata: { external_file_id: 'external-123' } },
+				],
+			};
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await getFileIdByExternalFileId.call(
+				mockExecuteFunctions,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+			);
+
+			// Assert
+			expect(result).toBe('file-456');
+			const callArgs = mockHttpRequest.mock.calls[0][1];
+			expect(callArgs.url).toContain('files/test-assistant?filter=');
+			const filterParam = callArgs.url.split('?filter=')[1];
+			const decodedFilter = JSON.parse(decodeURIComponent(filterParam));
+			expect(decodedFilter).toEqual({ external_file_id: 'external-123' });
+		});
+
+		it('should return undefined when no files are found', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const mockResponse = {
+				files: [],
+			};
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await getFileIdByExternalFileId.call(
+				mockExecuteFunctions,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+			);
+
+			// Assert
+			expect(result).toBeUndefined();
+		});
+
+		it('should return undefined when more than one file is found', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const mockResponse = {
+				files: [
+					{ id: 'file-456', name: 'test.pdf', metadata: { external_file_id: 'external-123' } },
+					{ id: 'file-789', name: 'test2.pdf', metadata: { external_file_id: 'external-123' } },
+				],
+			};
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await getFileIdByExternalFileId.call(
+				mockExecuteFunctions,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+			);
+
+			// Assert
+			expect(result).toBeUndefined();
+			const callArgs = mockHttpRequest.mock.calls[0][1];
+			expect(callArgs.url).toContain('files/test-assistant?filter=');
+			const filterParam = callArgs.url.split('?filter=')[1];
+			const decodedFilter = JSON.parse(decodeURIComponent(filterParam));
+			expect(decodedFilter).toEqual({ external_file_id: 'external-123' });
 		});
 	});
 });

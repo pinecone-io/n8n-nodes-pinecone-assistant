@@ -190,6 +190,20 @@ export class PineconeAssistant implements INodeType {
 				},
 			},
 			{
+				displayName: 'External File ID',
+				name: 'externalFileId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: { 
+					show: {
+						operation: ['deleteFile'],
+						resource: ['file'],
+					},
+				},
+				description: 'The external file ID to identify the file in the Pinecone Assistant',
+			},
+			{
 				displayName: 'Additional Fields',
 				name: 'additionalFields',
 				type: 'collection',

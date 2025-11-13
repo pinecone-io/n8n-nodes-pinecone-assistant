@@ -85,7 +85,7 @@ export async function apiRequest(
     return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
 
-export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, metadataFilter: IDataObject | undefined): Promise<unknown> {
+export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, metadataFilter: IDataObject | undefined) {
 	let endpoint = `files/${assistantName}`;
 	this.logger.debug(`Metadata filter: ${JSON.stringify(metadataFilter)}`);
 	// Filter by metadata
@@ -109,4 +109,13 @@ export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadO
 	}
 
 	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {});
+}
+
+export async function getFileIdByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string): Promise<string | undefined> {
+	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, { metadataFilterValues: [{ key: 'external_file_id', value: externalFileId }] }) as { files: IDataObject[] };
+
+	if (files.length === 1) {
+		return files[0].id as string;
+	}
+	return undefined;
 }
