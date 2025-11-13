@@ -1,10 +1,11 @@
-import { IExecuteFunctions, INodeExecutionData, NodeOperationError } from "n8n-workflow";
-import { AssistantData, deleteFilesByIds, getFileIdsByExternalFileId} from "../genericFunctions";
+import { IDataObject, IExecuteFunctions, INodeExecutionData, NodeOperationError } from "n8n-workflow";
+import { AssistantData, deleteFilesByIds, getFileIdsByExternalFileId, uploadFile } from "../genericFunctions";
 
 export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData[]> {
 
     const assistantData = this.getNodeParameter('assistantData', index) as string;
 	const { name: assistantName, host: assistantHostUrl } = JSON.parse(assistantData) as AssistantData;
+	const inputDataFieldName = this.getNodeParameter('inputDataFieldName', index) as string;
 
 	// get file id to delete by external file id metadata
 	const externalFileId = this.getNodeParameter('externalFileId', index) as string;
@@ -13,13 +14,21 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	}
     
     const fileIds = await getFileIdsByExternalFileId.call(this, assistantName, assistantHostUrl, externalFileId);
-	
-    if (fileIds.length === 0) {
-        throw new NodeOperationError(this.getNode(), `File with external file ID ${externalFileId} not found.`);
-    }
     
     // delete files by id
 	await deleteFilesByIds.call(this, assistantName, assistantHostUrl, fileIds);
-    return this.helpers.returnJsonArray([{ json: { deleted: true } }]);
-}
+	
+    // upload updated file 
+	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
+	const responseData = await uploadFile.call(
+		this,
+		assistantName,
+		assistantHostUrl,
+		externalFileId,
+		additionalFields,
+		index,
+		inputDataFieldName,
+	);
 
+	return this.helpers.returnJsonArray(responseData as IDataObject[]);
+}

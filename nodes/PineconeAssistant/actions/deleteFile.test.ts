@@ -4,13 +4,13 @@ import * as genericFunctions from '../genericFunctions';
 
 // Mock the genericFunctions module
 jest.mock('../genericFunctions', () => ({
-	apiRequest: jest.fn(),
+	deleteFilesByIds: jest.fn(),
 	getFileIdsByExternalFileId: jest.fn(),
 }));
 
 describe('deleteFile.execute', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
-	const mockApiRequest = genericFunctions.apiRequest as jest.MockedFunction<typeof genericFunctions.apiRequest>;
+	const mockDeleteFilesByIds = genericFunctions.deleteFilesByIds as jest.MockedFunction<typeof genericFunctions.deleteFilesByIds>;
 	const mockGetFileIdByExternalFileId = genericFunctions.getFileIdsByExternalFileId as jest.MockedFunction<typeof genericFunctions.getFileIdsByExternalFileId>;
 
 	beforeEach(() => {
@@ -46,7 +46,7 @@ describe('deleteFile.execute', () => {
 				return undefined;
 			});
 		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
-		mockApiRequest.mockResolvedValue(undefined);
+		mockDeleteFilesByIds.mockResolvedValue(undefined);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
@@ -60,12 +60,10 @@ describe('deleteFile.execute', () => {
 			'https://prod-1-data.ke.pinecone.io',
 			'external-123',
 		);
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'DELETE',
+		expect(mockDeleteFilesByIds).toHaveBeenCalledWith(
+			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			'files/test-assistant/file-456',
-			{},
-			{},
+			[fileId],
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith([{ json: { deleted: true } }]);
 		expect(result).toEqual(mockReturnData);
@@ -93,7 +91,7 @@ describe('deleteFile.execute', () => {
 			'External file ID is required to update a file.',
 		);
 		expect(mockGetFileIdByExternalFileId).not.toHaveBeenCalled();
-		expect(mockApiRequest).not.toHaveBeenCalled();
+		expect(mockDeleteFilesByIds).not.toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 
@@ -119,7 +117,7 @@ describe('deleteFile.execute', () => {
 			'External file ID is required to update a file.',
 		);
 		expect(mockGetFileIdByExternalFileId).not.toHaveBeenCalled();
-		expect(mockApiRequest).not.toHaveBeenCalled();
+		expect(mockDeleteFilesByIds).not.toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 
@@ -150,7 +148,7 @@ describe('deleteFile.execute', () => {
 			'https://prod-1-data.ke.pinecone.io',
 			'external-123',
 		);
-		expect(mockApiRequest).not.toHaveBeenCalled();
+		expect(mockDeleteFilesByIds).not.toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 
@@ -173,16 +171,16 @@ describe('deleteFile.execute', () => {
 				return undefined;
 			});
 		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
-		mockApiRequest.mockRejectedValue(error);
+		mockDeleteFilesByIds.mockRejectedValue(error);
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow('API request failed');
 		expect(mockGetFileIdByExternalFileId).toHaveBeenCalled();
-		expect(mockApiRequest).toHaveBeenCalled();
+		expect(mockDeleteFilesByIds).toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 
-	it('should correctly construct endpoint with different assistant names and file IDs', async () => {
+	it('should correctly call deleteFilesByIds with different assistant names and file IDs', async () => {
 		// Arrange
 		const index = 0;
 		const assistantData = JSON.stringify({
@@ -201,19 +199,17 @@ describe('deleteFile.execute', () => {
 				return undefined;
 			});
 		mockGetFileIdByExternalFileId.mockResolvedValue([fileId]);
-		mockApiRequest.mockResolvedValue(undefined);
+		mockDeleteFilesByIds.mockResolvedValue(undefined);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
 		await execute.call(mockExecuteFunctions, index);
 
 		// Assert
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'DELETE',
+		expect(mockDeleteFilesByIds).toHaveBeenCalledWith(
+			'my-custom-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			'files/my-custom-assistant/custom-file-id',
-			{},
-			{},
+			[fileId],
 		);
 	});
 

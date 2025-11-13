@@ -4,12 +4,12 @@ import * as genericFunctions from '../genericFunctions';
 
 // Mock the genericFunctions module
 jest.mock('../genericFunctions', () => ({
-	apiRequest: jest.fn(),
+	uploadFile: jest.fn(),
 }));
 
 describe('uploadFile.execute', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
-	const mockApiRequest = genericFunctions.apiRequest as jest.MockedFunction<typeof genericFunctions.apiRequest>;
+	const mockUploadFile = genericFunctions.uploadFile as jest.MockedFunction<typeof genericFunctions.uploadFile>;
 
 	beforeEach(() => {
 		// Reset mocks before each test
@@ -20,8 +20,6 @@ describe('uploadFile.execute', () => {
 			getNodeParameter: jest.fn(),
 			helpers: {
 				returnJsonArray: jest.fn(),
-				assertBinaryData: jest.fn(),
-				getBinaryDataBuffer: jest.fn(),
 			},
 		} as unknown as jest.Mocked<IExecuteFunctions>;
 	});
@@ -35,11 +33,6 @@ describe('uploadFile.execute', () => {
 		});
 		const inputDataFieldName = 'binary';
 		const externalFileId = 'external-123';
-		const mockBinaryData = {
-			fileName: 'test.pdf',
-			mimeType: 'application/pdf',
-		};
-		const mockFileBuffer = Buffer.from('test file content');
 		const mockResponseData = { id: 'file1', name: 'test.pdf' };
 		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file1', name: 'test.pdf' } }];
 
@@ -52,9 +45,7 @@ describe('uploadFile.execute', () => {
 				if (paramName === 'additionalFields') return {};
 				return undefined;
 			});
-		mockExecuteFunctions.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
-		mockExecuteFunctions.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockUploadFile.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
@@ -65,29 +56,14 @@ describe('uploadFile.execute', () => {
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('inputDataFieldName', index);
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('externalFileId', index);
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('additionalFields', index);
-		expect(mockExecuteFunctions.helpers.assertBinaryData).toHaveBeenCalledWith(index, inputDataFieldName);
-		expect(mockExecuteFunctions.helpers.getBinaryDataBuffer).toHaveBeenCalledWith(index, inputDataFieldName);
-		
-		// Check that apiRequest was called with POST and correct endpoint
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'POST',
+		expect(mockUploadFile).toHaveBeenCalledWith(
+			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			expect.stringContaining('files/test-assistant?metadata='),
-			expect.any(FormData),
+			'external-123',
 			{},
+			index,
+			inputDataFieldName,
 		);
-
-		// Verify external_file_id metadata is properly encoded in the endpoint
-		const endpointCall = mockApiRequest.mock.calls[0][2] as string;
-		expect(endpointCall).toContain('files/test-assistant?metadata=');
-		const metadataParam = endpointCall.split('?metadata=')[1];
-		const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
-		expect(decodedMetadata).toEqual({ external_file_id: 'external-123' });
-		
-		// Verify FormData contains the file
-		const formDataCall = mockApiRequest.mock.calls[0];
-		const formData = formDataCall[3] as FormData;
-		expect(formData).toBeInstanceOf(FormData);
 		
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -110,11 +86,6 @@ describe('uploadFile.execute', () => {
 				],
 			},
 		};
-		const mockBinaryData = {
-			fileName: 'test.pdf',
-			mimeType: 'application/pdf',
-		};
-		const mockFileBuffer = Buffer.from('test file content');
 		const mockResponseData = { id: 'file1', name: 'test.pdf' };
 		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file1', name: 'test.pdf' } }];
 
@@ -127,9 +98,7 @@ describe('uploadFile.execute', () => {
 				if (paramName === 'additionalFields') return additionalFields;
 				return undefined;
 			});
-		mockExecuteFunctions.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
-		mockExecuteFunctions.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockUploadFile.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
@@ -140,22 +109,14 @@ describe('uploadFile.execute', () => {
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('inputDataFieldName', index);
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('externalFileId', index);
 		expect(mockExecuteFunctions.getNodeParameter).toHaveBeenCalledWith('additionalFields', index);
-		
-		// Check that endpoint includes metadata query parameter
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'POST',
+		expect(mockUploadFile).toHaveBeenCalledWith(
+			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			expect.stringContaining('files/test-assistant?metadata='),
-			expect.any(FormData),
-			{},
+			'external-123',
+			additionalFields,
+			index,
+			inputDataFieldName,
 		);
-		
-		// Verify external_file_id metadata is properly encoded in the endpoint
-		const endpointCall = mockApiRequest.mock.calls[0][2] as string;
-		expect(endpointCall).toContain('files/test-assistant?metadata=');
-		const metadataParam = endpointCall.split('?metadata=')[1];
-		const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
-		expect(decodedMetadata).toEqual({ external_file_id: 'external-123', category: 'document', source: 'test' });
 		
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -170,11 +131,6 @@ describe('uploadFile.execute', () => {
 		});
 		const inputDataFieldName = 'binary';
 		const externalFileId = 'external-123';
-		const mockBinaryData = {
-			fileName: 'test.pdf',
-			mimeType: 'application/pdf',
-		};
-		const mockFileBuffer = Buffer.from('test file content');
 		const mockResponseData: unknown = null;
 		const mockReturnData: INodeExecutionData[] = [];
 
@@ -187,22 +143,13 @@ describe('uploadFile.execute', () => {
 				if (paramName === 'additionalFields') return {};
 				return undefined;
 			});
-		mockExecuteFunctions.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
-		mockExecuteFunctions.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockUploadFile.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
 		const result = await execute.call(mockExecuteFunctions, index);
 
 		// Assert
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'POST',
-			'https://prod-1-data.ke.pinecone.io',
-			expect.stringContaining('files/test-assistant?metadata='),
-			expect.any(FormData),
-			{},
-		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
 	});
@@ -221,11 +168,6 @@ describe('uploadFile.execute', () => {
 				metadataValues: [],
 			},
 		};
-		const mockBinaryData = {
-			fileName: 'test.pdf',
-			mimeType: 'application/pdf',
-		};
-		const mockFileBuffer = Buffer.from('test file content');
 		const mockResponseData = { id: 'file1' };
 		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file1' } }];
 
@@ -238,29 +180,21 @@ describe('uploadFile.execute', () => {
 				if (paramName === 'additionalFields') return additionalFields;
 				return undefined;
 			});
-		mockExecuteFunctions.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
-		mockExecuteFunctions.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
-		mockApiRequest.mockResolvedValue(mockResponseData);
+		mockUploadFile.mockResolvedValue(mockResponseData);
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
 		await execute.call(mockExecuteFunctions, index);
 
 		// Assert
-		// When metadataValues is empty, endpoint should not include metadata parameter
-		expect(mockApiRequest).toHaveBeenCalledWith(
-			'POST',
+		expect(mockUploadFile).toHaveBeenCalledWith(
+			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
-			expect.stringContaining('files/test-assistant?metadata='),
-			expect.any(FormData),
-			{},
+			'external-123',
+			additionalFields,
+			index,
+			inputDataFieldName,
 		);
-		// Verify external_file_id metadata is properly encoded in the endpoint
-		const endpointCall = mockApiRequest.mock.calls[0][2] as string;
-		expect(endpointCall).toContain('files/test-assistant?metadata=');
-		const metadataParam = endpointCall.split('?metadata=')[1];
-		const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
-		expect(decodedMetadata).toEqual({ external_file_id: 'external-123' });
 	});
 });
 

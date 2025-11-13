@@ -116,3 +116,64 @@ export async function getFileIdsByExternalFileId(this: IHookFunctions | IExecute
 
 	return files.map(file => file.id as string);
 }
+
+/**
+ * Delete files by their IDs
+ */
+export async function deleteFilesByIds(
+	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
+	assistantName: string,
+	assistantHostUrl: string,
+	fileIds: string[],
+): Promise<void> {
+	const body = {} as IDataObject;
+	const qs = {} as IDataObject;
+	const requestMethod = 'DELETE';
+	for (const fileId of fileIds) {
+		const endpoint = `files/${assistantName}/${fileId}`;
+		await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+	}
+}
+
+/**
+ * Upload a file to Pinecone Assistant with metadata
+ */
+export async function uploadFile(
+	this: IExecuteFunctions,
+	assistantName: string,
+	assistantHostUrl: string,
+	externalFileId: string,
+	additionalFields: IDataObject | undefined,
+	index: number,
+	inputDataFieldName: string,
+): Promise<unknown> {
+	const qs = {} as IDataObject;
+	const requestMethod = 'POST';
+	let endpoint = `files/${assistantName}`;
+	
+	// Handle additional fields - metadata
+	let metadataValues = {} as IDataObject;
+	if (additionalFields && additionalFields.metadata) {
+		const values =
+		((additionalFields.metadata as IDataObject).metadataValues as IDataObject[]) || [];
+		
+		metadataValues = values.reduce(
+			(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
+			{} as IDataObject,
+		);
+	}
+	
+	// Add external file id to metadata
+	metadataValues.external_file_id = externalFileId;
+	endpoint += `?metadata=${encodeURIComponent(JSON.stringify(metadataValues))}`;
+
+	// Get binary data from input
+	const binaryData = this.helpers.assertBinaryData(index, inputDataFieldName);
+	const fileBuffer = await this.helpers.getBinaryDataBuffer(index, inputDataFieldName);
+	const fileBlob = new Blob([fileBuffer], {type: binaryData.mimeType})
+	const formData = new FormData();
+	formData.append('file', fileBlob, binaryData.fileName)
+	const body = formData;
+	
+	return await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+}

@@ -4,6 +4,7 @@ import * as getContextSnippets from './actions/getContextSnippets';
 import * as listAssistants from './actions/listAssistants';
 import * as listFiles from './actions/listFiles';
 import * as uploadFile from './actions/uploadFile';
+import * as updateFile from './actions/updateFile';
 import * as deleteFile from './actions/deleteFile';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -29,6 +30,8 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
                     responseData = await listFiles.execute.call(this, i);
                 } else if (resource === 'file' && operation === 'uploadFile') {
                     responseData = await uploadFile.execute.call(this, i);
+                } else if (resource === 'file' && operation === 'updateFile') {
+                    responseData = await updateFile.execute.call(this, i);
                 } else if (resource === 'file' && operation === 'deleteFile') {
                     responseData = await deleteFile.execute.call(this, i);
                 } else {

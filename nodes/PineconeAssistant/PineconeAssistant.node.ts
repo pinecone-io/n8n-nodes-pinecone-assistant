@@ -184,7 +184,7 @@ export class PineconeAssistant implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['uploadFile'],
+						operation: ['uploadFile', 'updateFile'],
 						resource: ['file'],
 					},
 				},
@@ -211,7 +211,7 @@ export class PineconeAssistant implements INodeType {
 				required: true,
 				displayOptions: { 
 					show: {
-						operation: ['uploadFile'],
+						operation: ['uploadFile', 'updateFile'],
 						resource: ['file'],
 					},
 				},
@@ -225,7 +225,7 @@ export class PineconeAssistant implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						operation: ['uploadFile'],
+						operation: ['uploadFile', 'updateFile'],
 						resource: ['file'],
 					},
 				},

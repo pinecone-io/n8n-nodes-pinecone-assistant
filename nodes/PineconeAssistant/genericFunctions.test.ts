@@ -2,7 +2,7 @@ import type {
 	IExecuteFunctions,
 	IDataObject,
 } from 'n8n-workflow';
-import { apiRequest, getFiles, getFileIdsByExternalFileId } from './genericFunctions';
+import { apiRequest, deleteFilesByIds, getFiles, getFileIdsByExternalFileId, uploadFile } from './genericFunctions';
 
 describe('genericFunctions', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
@@ -530,6 +530,287 @@ describe('genericFunctions', () => {
 			const filterParam = callArgs.url.split('?filter=')[1];
 			const decodedFilter = JSON.parse(decodeURIComponent(filterParam));
 			expect(decodedFilter).toEqual({ external_file_id: 'external-123' });
+		});
+	});
+
+	describe('uploadFile', () => {
+		let mockExecuteFunctionsForUpload: jest.Mocked<IExecuteFunctions>;
+		let mockHttpRequestForUpload: jest.Mock;
+
+		beforeEach(() => {
+			// Reset mocks
+			jest.clearAllMocks();
+
+			// Create mock for httpRequestWithAuthentication
+			mockHttpRequestForUpload = jest.fn();
+
+			// Create a mock IExecuteFunctions object with binary data helpers
+			mockExecuteFunctionsForUpload = {
+				helpers: {
+					assertBinaryData: jest.fn(),
+					getBinaryDataBuffer: jest.fn(),
+					httpRequestWithAuthentication: mockHttpRequestForUpload,
+				},
+				logger: {
+					debug: jest.fn(),
+				},
+			} as unknown as jest.Mocked<IExecuteFunctions>;
+		});
+
+		it('should upload file without additional metadata', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields = undefined;
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.pdf' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			expect(mockExecuteFunctionsForUpload.helpers.assertBinaryData).toHaveBeenCalledWith(index, inputDataFieldName);
+			expect(mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer).toHaveBeenCalledWith(index, inputDataFieldName);
+			expect(mockHttpRequestForUpload).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					method: 'POST',
+					url: expect.stringContaining('files/test-assistant?metadata='),
+					body: expect.any(FormData),
+					qs: {},
+				}),
+			);
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			const url = callArgs.url as string;
+			expect(url).toContain('files/test-assistant?metadata=');
+			const metadataParam = url.split('?metadata=')[1];
+			const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
+			expect(decodedMetadata).toEqual({ external_file_id: 'external-123' });
+			expect(result).toEqual(mockResponse);
+		});
+
+		it('should upload file with additional metadata', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				metadata: {
+					metadataValues: [
+						{ key: 'category', value: 'document' },
+						{ key: 'source', value: 'test' },
+					],
+				},
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.pdf' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			const url = callArgs.url as string;
+			expect(url).toContain('files/test-assistant?metadata=');
+			const metadataParam = url.split('?metadata=')[1];
+			const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
+			expect(decodedMetadata).toEqual({
+				external_file_id: 'external-123',
+				category: 'document',
+				source: 'test',
+			});
+			expect(result).toEqual(mockResponse);
+		});
+
+		it('should upload file with empty metadata values array', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				metadata: {
+					metadataValues: [],
+				},
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			const result = await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			const url = callArgs.url as string;
+			expect(url).toContain('files/test-assistant?metadata=');
+			const metadataParam = url.split('?metadata=')[1];
+			const decodedMetadata = JSON.parse(decodeURIComponent(metadataParam));
+			expect(decodedMetadata).toEqual({ external_file_id: 'external-123' });
+			expect(result).toEqual(mockResponse);
+		});
+	});
+
+	describe('deleteFilesByIds', () => {
+		it('should delete a single file by ID', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const fileIds = ['file-456'];
+
+			mockHttpRequest.mockResolvedValue(undefined);
+
+			// Act
+			await deleteFilesByIds.call(mockExecuteFunctions, assistantName, assistantHostUrl, fileIds);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledTimes(1);
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					method: 'DELETE',
+					url: `${assistantHostUrl}/assistant/files/${assistantName}/${fileIds[0]}`,
+					body: {},
+					qs: {},
+					json: true,
+				}),
+			);
+		});
+
+		it('should delete multiple files by IDs', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const fileIds = ['file-456', 'file-789', 'file-101'];
+
+			mockHttpRequest.mockResolvedValue(undefined);
+
+			// Act
+			await deleteFilesByIds.call(mockExecuteFunctions, assistantName, assistantHostUrl, fileIds);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					method: 'DELETE',
+					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-456`,
+				}),
+			);
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					method: 'DELETE',
+					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-789`,
+				}),
+			);
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					method: 'DELETE',
+					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-101`,
+				}),
+			);
+		});
+
+		it('should handle empty file IDs array', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const fileIds: string[] = [];
+
+			// Act
+			await deleteFilesByIds.call(mockExecuteFunctions, assistantName, assistantHostUrl, fileIds);
+
+			// Assert
+			expect(mockHttpRequest).not.toHaveBeenCalled();
+		});
+
+		it('should handle API request errors', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const fileIds = ['file-456'];
+			const error = new Error('Delete API request failed');
+
+			mockHttpRequest.mockRejectedValue(error);
+
+			// Act & Assert
+			await expect(
+				deleteFilesByIds.call(mockExecuteFunctions, assistantName, assistantHostUrl, fileIds),
+			).rejects.toThrow('Delete API request failed');
+			expect(mockHttpRequest).toHaveBeenCalled();
+		});
+
+		it('should handle errors when deleting multiple files', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const fileIds = ['file-456', 'file-789'];
+			const error = new Error('Delete API request failed');
+
+			mockHttpRequest
+				.mockResolvedValueOnce(undefined)
+				.mockRejectedValueOnce(error);
+
+			// Act & Assert
+			await expect(
+				deleteFilesByIds.call(mockExecuteFunctions, assistantName, assistantHostUrl, fileIds),
+			).rejects.toThrow('Delete API request failed');
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
 		});
 	});
 });
