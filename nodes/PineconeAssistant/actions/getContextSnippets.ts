@@ -1,5 +1,5 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { jsonParse, NodeOperationError } from 'n8n-workflow';
 
 import { apiRequest, constructMetadataValues, type AssistantData } from '../genericFunctions';
 
@@ -13,17 +13,28 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	const endpoint = `chat/${assistantName}/context`;
 	
     const query = this.getNodeParameter('query', index) as string;
-	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
-	const topK = additionalFields?.topK as number | undefined;
-	const snippetSize = additionalFields?.snippetSize as number | undefined;
-
 	if (!query || query.trim() === '') {
 		throw new NodeOperationError(this.getNode(), 'Query parameter is required and cannot be empty', {
 			itemIndex: index,
 		});
 	}
 
-	// Handle additional fields - metadata
+	// Handle additional fields
+	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
+	
+	// Only one of metadataFilter or advancedMetadataFilter can be set, not both
+	if (additionalFields?.metadataFilter && additionalFields?.advancedMetadataFilter) {
+		throw new NodeOperationError(
+			this.getNode(),
+			'Only one of metadataFilter or advancedMetadataFilter can be set, not both',
+			{ itemIndex: index },
+		);
+	}
+
+	const topK = additionalFields?.topK as number | undefined;
+	const snippetSize = additionalFields?.snippetSize as number | undefined;
+
+	// Simple metadata filter
 	let metadataFilter: IDataObject | undefined;
 	if (additionalFields?.metadataFilter) {
 		metadataFilter = additionalFields.metadataFilter as IDataObject;
@@ -32,6 +43,20 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		if (filterValues !== null) {
 			body.filter = filterValues;
 		}
+	}
+
+	// Advanced metadata filter
+	if (additionalFields?.advancedMetadataFilter) {
+		let advancedMetadataFilter: IDataObject;
+		const filterValue = additionalFields.advancedMetadataFilter;
+
+		try {
+			advancedMetadataFilter = jsonParse<IDataObject>(filterValue as string);
+		} catch (parseError) {
+			throw new NodeOperationError(this.getNode(), `Invalid JSON in advancedMetadataFilter: ${parseError.message}. Please ensure it is valid JSON.`, { itemIndex: index });
+		}
+		
+		body.filter = advancedMetadataFilter;
 	}
 
     body.query = query;

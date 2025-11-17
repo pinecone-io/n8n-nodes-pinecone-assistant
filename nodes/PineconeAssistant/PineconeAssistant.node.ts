@@ -193,7 +193,7 @@ export class PineconeAssistant implements INodeType {
 						displayName: 'Top K',
 						name: 'topK',
 						type: 'number',
-						default: 16						
+						default: 16
 					},
 					{
 						displayName: 'Snippet Size',
@@ -210,7 +210,7 @@ export class PineconeAssistant implements INodeType {
 						typeOptions: {
 							multipleValues: true,
 						},
-						description: 'A collection of metadata to filter by',
+						description: 'Filter by key/value pair',
 						options: [
 							{
 								name: 'metadataValues',
@@ -236,6 +236,14 @@ export class PineconeAssistant implements INodeType {
 							},
 						],
 					},
+					{
+						displayName: 'Advanced Metadata Filter (JSON)',
+						name: 'advancedMetadataFilter',
+						type: 'json',
+						default: JSON.stringify({ year: { $gt: 2023 } }, null, 2),
+						description: 'BLAH!',
+						hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
+					},					
 				],
 			},
 			{

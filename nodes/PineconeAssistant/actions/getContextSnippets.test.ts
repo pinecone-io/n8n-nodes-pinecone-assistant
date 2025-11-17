@@ -293,6 +293,39 @@ describe('getContextSnippets.execute', () => {
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
 
+	it('should throw an error if both metadataFilter and advancedMetadataFilter are set', async () => {
+		// Arrange
+		const index = 0;
+		const assistantData = JSON.stringify({
+			name: 'test-assistant',
+			host: 'https://prod-1-data.ke.pinecone.io',
+		});
+		const query = 'test query';
+		const metadataFilter = {
+			metadataValues: [
+				{ key: 'category', value: 'technology' },
+			],
+		};
+		const advancedMetadataFilter = { $and: [{ category: { $eq: 'technology' } }] };
+
+		mockExecuteFunctions.getNodeParameter = jest
+			.fn()
+			.mockImplementation((paramName: string) => {
+				if (paramName === 'assistantData') return assistantData;
+				if (paramName === 'query') return query;
+				if (paramName === 'additionalFields') return { metadataFilter, advancedMetadataFilter };
+				return undefined;
+			});
+
+		// Act & Assert
+		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
+			'Only one of metadataFilter or advancedMetadataFilter can be set, not both',
+		);
+		expect(mockApiRequest).not.toHaveBeenCalled();
+		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
+		expect(mockConstructMetadataValues).not.toHaveBeenCalled();
+	});
+
 	it('should not include topK and snippetSize in body when they are not set', async () => {
 		// Arrange
 		const index = 0;
@@ -643,6 +676,133 @@ describe('getContextSnippets.execute', () => {
 			const requestBody = callArgs[3] as IDataObject;
 			expect(requestBody).toHaveProperty('filter');
 			expect(requestBody.filter).toEqual(mockFilterResult);
+		});
+	});
+
+	describe('advancedMetadataFilter functionality', () => {
+		it('should set body.filter when advancedMetadataFilter is provided with valid JSON string', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const advancedMetadataFilter = JSON.stringify({
+				$and: [
+					{ category: { $eq: 'technology' } },
+					{ year: { $gte: 2023 } },
+				],
+			});
+			const expectedFilter = {
+				$and: [
+					{ category: { $eq: 'technology' } },
+					{ year: { $gte: 2023 } },
+				],
+			};
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { advancedMetadataFilter };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', filter: expectedFilter },
+				{},
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('filter');
+			expect(requestBody.filter).toEqual(expectedFilter);
+			expect(mockConstructMetadataValues).not.toHaveBeenCalled();
+		});
+
+		it('should set body.filter when advancedMetadataFilter is provided with simple filter expression', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const advancedMetadataFilter = JSON.stringify({
+				category: { $eq: 'documentation' },
+			});
+			const expectedFilter = {
+				category: { $eq: 'documentation' },
+			};
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { advancedMetadataFilter };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', filter: expectedFilter },
+				{},
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('filter');
+			expect(requestBody.filter).toEqual(expectedFilter);
+		});
+
+		it('should throw an error when advancedMetadataFilter contains invalid JSON', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const advancedMetadataFilter = '{ invalid json }';
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { advancedMetadataFilter };
+					return undefined;
+				});
+
+			// Act & Assert
+			await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
+				'Invalid JSON in advancedMetadataFilter',
+			);
+			expect(mockApiRequest).not.toHaveBeenCalled();
+			expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
+			expect(mockConstructMetadataValues).not.toHaveBeenCalled();
 		});
 	});
 });
