@@ -8,17 +8,12 @@ import * as updateFile from './actions/updateFile';
 import * as deleteFile from './actions/deleteFile';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-        this.logger.debug(`Router called`);
     	const items = this.getInputData();
-		this.logger.debug(`Items: ${JSON.stringify(items)}`);
         const returnData: INodeExecutionData[] = [];
         let responseData: IDataObject | IDataObject[] = [];
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-				
-		this.logger.debug(`Resource: ${resource}`);
-		this.logger.debug(`Operation: ${operation}`);
 		
         for (let i = 0; i < items.length; i++) {
             try {
