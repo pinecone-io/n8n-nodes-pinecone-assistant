@@ -177,6 +177,68 @@ export class PineconeAssistant implements INodeType {
 				},
 			},
 			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add field',
+				default: {},
+				displayOptions: {
+					show: {
+						operation: ['getContextSnippets'],
+						resource: ['contextSnippet'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Top K',
+						name: 'topK',
+						type: 'number',
+						default: 16						
+					},
+					{
+						displayName: 'Snippet Size',
+						name: 'snippetSize',
+						type: 'number',
+						default: 2048
+					},					
+					{
+						displayName: 'Metadata Filter',
+						name: 'metadataFilter',
+						placeholder: 'Add metadata',
+						type: 'fixedCollection',
+						default: {},
+						typeOptions: {
+							multipleValues: true,
+						},
+						description: 'A collection of metadata to filter by',
+						options: [
+							{
+								name: 'metadataValues',
+								displayName: 'Metadata Filter',
+								values: [
+									{
+										displayName: 'Key',
+										name: 'key',
+										type: 'string',
+										default: '',
+										description: 'Metadata key',
+										required: true,
+									},
+									{
+										displayName: 'Value',
+										name: 'value',
+										type: 'string',
+										default: '',
+										description: 'Metadata value',
+										required: true,
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+			{
 				displayName: 'Input Data Field Name',
 				name: 'inputDataFieldName',
 				type: 'string',
@@ -292,7 +354,7 @@ export class PineconeAssistant implements INodeType {
 						description: 'A collection of metadata to filter by',
 						options: [
 							{
-								name: 'metadataFilterValues',
+								name: 'metadataValues',
 								displayName: 'Metadata Filter',
 								values: [
 									{

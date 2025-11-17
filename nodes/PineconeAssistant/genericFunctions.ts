@@ -82,37 +82,23 @@ export async function apiRequest(
 	}
     this.logger.debug(`Making API request to Pinecone: ${JSON.stringify(options)}`);
 
-    return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
+	return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
 
 export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, metadataFilter: IDataObject | undefined) {
 	let endpoint = `files/${assistantName}`;
-	this.logger.debug(`Metadata filter: ${JSON.stringify(metadataFilter)}`);
-	// Filter by metadata
-	if (metadataFilter && metadataFilter.metadataFilterValues) {
-		const values = metadataFilter.metadataFilterValues as IDataObject[] || [];
-
-		this.logger.debug(`Values: ${JSON.stringify(values)}`);
-		
-		// Only add filter if there are actual values to filter by
-		if (values.length > 0) {
-			const metadataFilterValues = values.reduce(
-				(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
-				{} as IDataObject,
-			);
-
-			this.logger.debug(`Metadata filter values: ${JSON.stringify(metadataFilterValues)}`);
-			
-			endpoint += `?filter=${encodeURIComponent(JSON.stringify(metadataFilterValues))}`;
-			this.logger.debug(`Endpoint: ${endpoint}`);
-		}
+	
+	const filterValues = constructMetadataValues(metadataFilter);
+	if (filterValues) {
+		endpoint += `?filter=${encodeURIComponent(JSON.stringify(filterValues))}`;
+		this.logger.debug(`Endpoint: ${endpoint}`);
 	}
 
 	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {});
 }
 
 export async function getFileIdsByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string): Promise<string[]> {
-	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, { metadataFilterValues: [{ key: 'external_file_id', value: externalFileId }] }) as { files: IDataObject[] };
+	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, { metadataValues: [{ key: 'external_file_id', value: externalFileId }] }) as { files: IDataObject[] };
 
 	return files.map(file => file.id as string);
 }
@@ -153,17 +139,12 @@ export async function uploadFile(
 	
 	// Handle additional fields - metadata
 	let metadataValues = {} as IDataObject;
-	if (additionalFields && additionalFields.metadata) {
-		const values =
-		((additionalFields.metadata as IDataObject).metadataValues as IDataObject[]) || [];
-		
-		metadataValues = values.reduce(
-			(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
-			{} as IDataObject,
-		);
+	if (additionalFields?.metadata) {
+		const constructed = constructMetadataValues(additionalFields.metadata as IDataObject);
+		if (constructed) {
+			metadataValues = constructed;
+		}
 	}
-	
-	// Add external file id to metadata
 	metadataValues.external_file_id = externalFileId;
 	endpoint += `?metadata=${encodeURIComponent(JSON.stringify(metadataValues))}`;
 
@@ -176,4 +157,28 @@ export async function uploadFile(
 	const body = formData;
 	
 	return await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+}
+
+/**
+ * Build metadata values object
+ * Returns null if no metadata values are provided
+ */
+export function constructMetadataValues(metadata: IDataObject | undefined): IDataObject | null {
+	if (!metadata || !metadata.metadataValues) {
+		return null;
+	}
+
+	const values = metadata.metadataValues as IDataObject[] || [];
+	
+	// Only add metadata values if there are actual values to add
+	if (values.length === 0) {
+		return null;
+	}
+
+	const metadataValues = values.reduce(
+		(acc, value) => Object.assign(acc, { [`${value.key}`]: value.value }),
+		{} as IDataObject,
+	);
+	
+	return metadataValues;
 }

@@ -322,12 +322,12 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});
 
-		it('should fetch files with multiple metadata filters', async () => {
+		it('should fetch files with multiple metadata values', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
 			const metadataFilter: IDataObject = {
-				metadataFilterValues: [
+				metadataValues: [
 					{ key: 'category', value: 'documentation' },
 					{ key: 'status', value: 'active' },
 				],
@@ -357,12 +357,12 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});		
 
-		it('should handle metadata filter with single metadata filter', async () => {
+		it('should handle metadata filter with single metadata value', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
 			const metadataFilter: IDataObject = {
-				metadataFilterValues: [{ key: 'category', value: 'documentation' }],
+				metadataValues: [{ key: 'category', value: 'documentation' }],
 			};
 			const mockResponse = [{ id: 'file1', name: 'test.pdf' }];
 
@@ -385,12 +385,12 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});
 
-        it('should handle empty metadata filter values array', async () => {
+        it('should handle empty metadata values array', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
 			const metadataFilter: IDataObject = {
-				metadataFilterValues: [],
+				metadataValues: [],
 			};
 			const mockResponse: unknown[] = [];
 
@@ -428,7 +428,7 @@ describe('genericFunctions', () => {
 			expect(callArgs.url).not.toContain('?filter=');
 		});
 
-		it('should not add filter parameter when metadataFilterValues is missing', async () => {
+		it('should not add filter parameter when metadataValues is missing', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';

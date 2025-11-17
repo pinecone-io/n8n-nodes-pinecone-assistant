@@ -174,7 +174,7 @@ describe('listFiles.execute', () => {
 		});
 		const additionalFields = {
 			metadataFilter: {
-				metadataFilterValues: [
+				metadataValues: [
 					{ key: 'category', value: 'documentation' }
 				],
 			},
