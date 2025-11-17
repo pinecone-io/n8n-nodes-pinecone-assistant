@@ -290,11 +290,11 @@ describe('genericFunctions', () => {
 	});
 
 	describe('getFiles', () => {
-		it('should fetch files without metadata filter', async () => {
+		it('should fetch files without filter values', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter = undefined;
+			const filterValues = undefined;
 			const mockResponse = [
 				{ id: 'file1', name: 'test.pdf' },
 				{ id: 'file2', name: 'document.docx' },
@@ -307,7 +307,7 @@ describe('genericFunctions', () => {
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
-				metadataFilter,
+				filterValues,
 			);
 
 			// Assert
@@ -322,15 +322,13 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});
 
-		it('should fetch files with multiple metadata values', async () => {
+		it('should fetch files with multiple filter values', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter: IDataObject = {
-				metadataValues: [
-					{ key: 'category', value: 'documentation' },
-					{ key: 'status', value: 'active' },
-				],
+			const filterValues: IDataObject = {
+				category: 'documentation',
+				status: 'active',
 			};
 			const mockResponse = [
 				{
@@ -347,7 +345,7 @@ describe('genericFunctions', () => {
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
-				metadataFilter,
+				filterValues,
 			);
 
 			// Assert
@@ -357,12 +355,12 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});		
 
-		it('should handle metadata filter with single metadata value', async () => {
+		it('should handle filter values with single value', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter: IDataObject = {
-				metadataValues: [{ key: 'category', value: 'documentation' }],
+			const filterValues: IDataObject = {
+				category: 'documentation',
 			};
 			const mockResponse = [{ id: 'file1', name: 'test.pdf' }];
 
@@ -373,7 +371,7 @@ describe('genericFunctions', () => {
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
-				metadataFilter,
+				filterValues,
 			);
 
 			// Assert
@@ -385,13 +383,11 @@ describe('genericFunctions', () => {
 			expect(result).toEqual(mockResponse);
 		});
 
-        it('should handle empty metadata values array', async () => {
+        it('should not add filter parameter when filterValues is null', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter: IDataObject = {
-				metadataValues: [],
-			};
+			const filterValues = null;
 			const mockResponse: unknown[] = [];
 
 			mockHttpRequest.mockResolvedValue(mockResponse);
@@ -401,7 +397,7 @@ describe('genericFunctions', () => {
 				mockExecuteFunctions,
 				assistantName,
 				assistantHostUrl,
-				metadataFilter,
+				filterValues,
 			);
 
 			// Assert
@@ -410,17 +406,17 @@ describe('genericFunctions', () => {
 			expect(callArgs.url).not.toContain('?filter=');
 		});
 
-		it('should not add filter parameter when metadataFilter is undefined', async () => {
+		it('should not add filter parameter when filterValues is undefined', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter = undefined;
+			const filterValues = undefined;
 			const mockResponse: unknown[] = [];
 
 			mockHttpRequest.mockResolvedValue(mockResponse);
 
 			// Act
-			await getFiles.call(mockExecuteFunctions, assistantName, assistantHostUrl, metadataFilter);
+			await getFiles.call(mockExecuteFunctions, assistantName, assistantHostUrl, filterValues);
 
 			// Assert
 			const callArgs = mockHttpRequest.mock.calls[0][1];
@@ -428,17 +424,17 @@ describe('genericFunctions', () => {
 			expect(callArgs.url).not.toContain('?filter=');
 		});
 
-		it('should not add filter parameter when metadataValues is missing', async () => {
+		it('should not add filter parameter when filterValues is empty object', async () => {
 			// Arrange
 			const assistantName = 'test-assistant';
 			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
-			const metadataFilter: IDataObject = {};
+			const filterValues: IDataObject = {};
 			const mockResponse: unknown[] = [];
 
 			mockHttpRequest.mockResolvedValue(mockResponse);
 
 			// Act
-			await getFiles.call(mockExecuteFunctions, assistantName, assistantHostUrl, metadataFilter);
+			await getFiles.call(mockExecuteFunctions, assistantName, assistantHostUrl, filterValues);
 
 			// Assert
 			const callArgs = mockHttpRequest.mock.calls[0][1];
