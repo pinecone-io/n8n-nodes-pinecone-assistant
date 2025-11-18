@@ -38,5 +38,5 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	
 	const responseData = await getFiles.call(this, assistantName, assistantHostUrl, filterValues);
 
-	return this.helpers.returnJsonArray(responseData as unknown as IDataObject[]);
+	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }

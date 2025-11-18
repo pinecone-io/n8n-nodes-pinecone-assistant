@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import type { IExecuteFunctions, INode, INodeExecutionData } from 'n8n-workflow';
 import { execute } from './listFiles';
 import * as genericFunctions from '../genericFunctions';
 
@@ -291,7 +291,7 @@ describe('listFiles.execute', () => {
 			}
 			return undefined;
 		});
-		mockExecuteFunctions.getNode = jest.fn().mockReturnValue({ name: 'test-node' } as any);
+		mockExecuteFunctions.getNode = jest.fn().mockReturnValue({ name: 'test-node' } as unknown as INode);
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
@@ -320,7 +320,7 @@ describe('listFiles.execute', () => {
 			}
 			return undefined;
 		});
-		mockExecuteFunctions.getNode = jest.fn().mockReturnValue({ name: 'test-node' } as any);
+		mockExecuteFunctions.getNode = jest.fn().mockReturnValue({ name: 'test-node' } as unknown as INode);
 
 		// Act & Assert
 		await expect(execute.call(mockExecuteFunctions, index)).rejects.toThrow(
