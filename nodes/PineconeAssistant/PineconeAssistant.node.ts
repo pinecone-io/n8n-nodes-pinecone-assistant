@@ -51,7 +51,7 @@ export class PineconeAssistant implements INodeType {
 						value: 'contextSnippet',
 					},
 				],
-				default: 'assistant',
+				default: 'contextSnippet',
 				required: true
 			},
 
