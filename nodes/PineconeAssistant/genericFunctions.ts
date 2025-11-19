@@ -80,7 +80,6 @@ export async function apiRequest(
 	if (method === 'GET') {
         delete options.body;
 	}
-    this.logger.debug(`Making API request to Pinecone: ${JSON.stringify(options)}`);
 
 	return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
