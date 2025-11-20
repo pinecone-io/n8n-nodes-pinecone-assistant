@@ -1,18 +1,8 @@
 # n8n-nodes-pinecone-assistant
 
-This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
+This is the official [n8n](https://n8n.io/) community node for interacting with [Pinecone](https://www.pinecone.io/) Assistant in your workflows.
 
-_App/service name_ is _one or two sentences describing the service this node integrates with_.
-
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
-
-[Installation](#installation)
-[Operations](#operations)
-[Credentials](#credentials)
-[Compatibility](#compatibility)
-[Usage](#usage)
-[Resources](#resources)
-[Version history](#version-history)
+[Pinecone Assistant](https://docs.pinecone.io/guides/assistant/overview) allows you to build production-grade chat and agent-based applications quickly. It abstracts the complexities of implementing retrieval-augmented (RAG) systems by managing the chunking, embedding, storage, query planning, vector search, model orchestration, reranking for you.
 
 ## Installation
 
@@ -20,21 +10,35 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-_List the operations supported by your node._
+### Assistants
+
+- List all the Assistants in the your project
+
+### Files
+
+- List all files for an Assistant
+- Upload a file to an Assistant
+- Update a file in an Assistant
+- Delete file from an Assistant
+
+### Context Snippets
+
+- Get context snippets from an Assistant
 
 ## Credentials
 
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+To use the Pinecone Assistant node, you'll need a Pinecone account and an API key. You can get started for free on the Starter plan (refer to [current pricing and limits](https://docs.pinecone.io/guides/assistant/pricing-and-limits) for more info).
+
+1. Sign up for a [Pinecone account](https://app.pinecone.io/)
+2. Create an [API key](https://app.pinecone.io/organizations/-/projects/-/keys)
 
 ## Compatibility
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
+This node was tested locally against n8n 1.120.4.
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
-
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/assistant/quickstart#n8n) for n8n to get started with a pre-built workflow using this node, an Assistant, and Open AI.
 
 ## Resources
 
@@ -43,4 +47,75 @@ _By the time users are looking for community nodes, they probably already know n
 
 ## Version history
 
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
+- V1
+
+## Node development
+
+To develop, build, and run this node locally, use the `n8n-node` cli tool. For more info on this tool, refer [here](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/).
+
+1. Install dependencies
+
+```bash
+$ cd n8n-nodes-pinecone-assistant
+$ npm install
+```
+2. Build the node
+
+This compiles Typescript files and bundles project assets.
+
+```bash
+$ npm run build
+```
+3. Test the node
+
+This runs a local instance of n8n with the node. It watches the project directory and automatically rebuilds when changes are detected.
+
+```bash
+$ npm run dev
+```
+
+Head over to http://localhost:5678 to test the node in a workflow.
+
+4. Run tests
+
+Run the unit test suite.
+
+```bash
+$ npm test
+```
+
+5. Versioning the node
+
+When making changes to a version of the node, ensure backwards compatibility with the current version. If it cannot be backwards compatible, create a new version:
+
+- In `PineconeAssistant.node.ts`, change `defaultVersion` to the new version number
+- In `PineconeAssistant.node.ts`, update the list of `nodeVersions`
+- Add a new version directory, named `v#` (i.e. `v2`)
+- In the new version directory, add the versioned node, `PineconeAssistantV2.node.ts` and all all functionality.
+
+
+6. Release the node and publish to npm
+
+Login to npm.
+
+```bash
+$ npm login
+```
+
+The release command builds, lints, updates the changelog, creates git tags, creates a GitHub release, and publishes the package to npm.
+
+```bash
+$ npm run release
+```
+
+## Contributing
+
+We welcome contributions! Please feel free to:
+- Submit issues and bug reports
+- Propose new features and improvements
+- Contribute code via pull requests
+- Share your use cases and success stories
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
