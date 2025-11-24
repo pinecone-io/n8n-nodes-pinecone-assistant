@@ -61,11 +61,14 @@ $ npm install
 ```
 2. Build the node
 
-This compiles Typescript files and bundles project assets.
+This compiles Typescript files and bundles project assets into the `dist` folder.
 
 ```bash
 $ npm run build
 ```
+
+Running this will clean the `dist` folder.
+
 3. Test the node
 
 This runs a local instance of n8n with the node. It watches the project directory and automatically rebuilds when changes are detected.

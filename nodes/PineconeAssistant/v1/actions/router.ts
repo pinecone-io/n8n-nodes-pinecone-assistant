@@ -1,11 +1,11 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData, NodeOperationError } from "n8n-workflow";
 
-import * as getContextSnippets from './actions/getContextSnippets';
-import * as listAssistants from './actions/listAssistants';
-import * as listFiles from './actions/listFiles';
-import * as uploadFile from './actions/uploadFile';
-import * as updateFile from './actions/updateFile';
-import * as deleteFile from './actions/deleteFile';
+import * as getContextSnippets from './getContextSnippets';
+import * as listAssistants from './listAssistants';
+import * as listFiles from './listFiles';
+import * as uploadFile from './uploadFile';
+import * as updateFile from './updateFile';
+import * as deleteFile from './deleteFile';
 
 export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     	const items = this.getInputData();
