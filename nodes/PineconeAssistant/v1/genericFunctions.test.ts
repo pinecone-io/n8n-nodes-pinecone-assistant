@@ -57,7 +57,7 @@ describe('genericFunctions', () => {
 					qs: query,
 					json: true,
 					headers: {
-						'X-Pinecone-API-Version': '2025-04',
+						'X-Pinecone-API-Version': '2025-10',
 						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
 					},
 				}),
@@ -95,7 +95,7 @@ describe('genericFunctions', () => {
 					qs: {},
 					json: true,
 					headers: {
-						'X-Pinecone-API-Version': '2025-04',
+						'X-Pinecone-API-Version': '2025-10',
 						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
 					},
 				}),
@@ -140,7 +140,7 @@ describe('genericFunctions', () => {
 					body,
 					qs: {},
 					headers: {
-						'X-Pinecone-API-Version': '2025-04',
+						'X-Pinecone-API-Version': '2025-10',
 						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
 					},
 				}),
