@@ -150,8 +150,8 @@ export const versionDescription: INodeTypeDescription = {
                 },
             },
             // eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
-            description:
-                'The name of the Pinecone Assistant to work with. Choose from the list, or specify a name using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+            description: 'The name of the Pinecone Assistant to work with',
+            noDataExpression: true
         },
         {
             displayName: 'Query',
@@ -165,6 +165,7 @@ export const versionDescription: INodeTypeDescription = {
                     resource: ['contextSnippet'],
                 },
             },
+            description: 'The query used to retrieve the context snippets',
         },
         {
             displayName: 'Additional Fields',
@@ -183,13 +184,16 @@ export const versionDescription: INodeTypeDescription = {
                     displayName: 'Top K',
                     name: 'topK',
                     type: 'number',
-                    default: 16
+                    default: 16,
+                    description: 'The maximum number of context snippets to return'
                 },
                 {
                     displayName: 'Snippet Size',
                     name: 'snippetSize',
                     type: 'number',
-                    default: 2048
+                    default: 2048,
+                    description: 'The maximum context snippet size in tokens'
+
                 },					
                 {
                     displayName: 'Metadata Filter',
@@ -200,7 +204,7 @@ export const versionDescription: INodeTypeDescription = {
                     typeOptions: {
                         multipleValues: true,
                     },
-                    description: 'Filter by key/value pair',
+                    description: 'Limit the context snippets to only those from files matching the metadata filter',
                     options: [
                         {
                             name: 'metadataValues',
@@ -231,7 +235,7 @@ export const versionDescription: INodeTypeDescription = {
                     name: 'advancedMetadataFilter',
                     type: 'json',
                     default: JSON.stringify({ year: { $gt: 2023 } }, null, 2),
-                    description: 'BLAH!',
+                    description: 'Limit the context snippets to only those from files matching the metadata filter',
                     hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
                 },					
             ],
@@ -349,7 +353,7 @@ export const versionDescription: INodeTypeDescription = {
                     typeOptions: {
                         multipleValues: true,
                     },
-                    description: 'Filter by key/value pair',
+                    description: 'Limit the list of files to only those matching the metadata filter',
                     options: [
                         {
                             name: 'metadataValues',
@@ -380,7 +384,7 @@ export const versionDescription: INodeTypeDescription = {
                     name: 'advancedMetadataFilter',
                     type: 'json',
                     default: JSON.stringify({ year: { $gt: 2023 } }, null, 2),
-                    description: 'BLAH!',
+                    description: 'Limit the list of files to only those matching the metadata filter',
                     hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
                 },
             ],
