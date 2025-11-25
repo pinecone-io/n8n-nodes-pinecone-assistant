@@ -12,14 +12,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: 'pnpm ci'
+        run: 'pnpm install --frozen-lockfile'
 
       - name: Run lint
         run: 'pnpm run lint'
