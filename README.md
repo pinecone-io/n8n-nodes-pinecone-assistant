@@ -51,20 +51,20 @@ Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/ass
 
 ## Node development
 
-To develop, build, and run this node locally, use the `n8n-node` cli tool. For more info on this tool, refer [here](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/).
+To develop, build, and run this node locally, use the `n8n-node` cli tool or `pnpm`. For more info on `n8n-node`, refer [here](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/).
 
 1. Install dependencies
 
 ```bash
 $ cd n8n-nodes-pinecone-assistant
-$ npm install
+$ pnpm install
 ```
 2. Build the node
 
 This compiles Typescript files and bundles project assets into the `dist` folder.
 
 ```bash
-$ npm run build
+$ pnpm run build
 ```
 
 Running this will clean the `dist` folder.
@@ -74,7 +74,7 @@ Running this will clean the `dist` folder.
 This runs a local instance of n8n with the node. It watches the project directory and automatically rebuilds when changes are detected.
 
 ```bash
-$ npm run dev
+$ pnpm run dev
 ```
 
 Head over to http://localhost:5678 to test the node in a workflow.
@@ -84,7 +84,7 @@ Head over to http://localhost:5678 to test the node in a workflow.
 Run the unit test suite.
 
 ```bash
-$ npm test
+$ pnpm test
 ```
 
 5. Versioning the node
@@ -102,13 +102,13 @@ When making changes to a version of the node, ensure backwards compatibility wit
 Login to npm.
 
 ```bash
-$ npm login
+$ pnpm login
 ```
 
 The release command builds, lints, updates the changelog, creates git tags, creates a GitHub release, and publishes the package to npm.
 
 ```bash
-$ npm run release
+$ pnpm run release
 ```
 
 ## Contributing
