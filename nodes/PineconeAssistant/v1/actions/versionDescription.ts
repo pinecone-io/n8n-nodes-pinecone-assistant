@@ -4,7 +4,6 @@ import { NodeConnectionTypes, type INodeTypeDescription } from "n8n-workflow";
 export const versionDescription: INodeTypeDescription = {
     displayName: 'Pinecone Assistant',
     name: 'pineconeAssistant',
-    icon: { light: 'file:../pinecone.svg', dark: 'file:../pinecone.dark.svg' },
     group: ['transform'],
     version: 1,
     description: 'A Pinecone Assistant node for n8n',
