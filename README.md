@@ -34,7 +34,7 @@ To use the Pinecone Assistant node, you'll need a Pinecone account and an API ke
 
 ## Compatibility
 
-This node was tested locally against n8n 1.120.4.
+This node was tested locally against n8n 1.121.3.
 
 ## Usage
 
