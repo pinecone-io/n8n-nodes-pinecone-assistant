@@ -1,5 +1,5 @@
 {
-    "name": "@pinecone/n8n-nodes-pinecone-assistant",
+    "name": "@pinecone-database/n8n-nodes-pinecone-assistant",
     "version": "0.1.0",
     "description": "A Pinecone Assistant node for n8n",
     "license": "MIT",
