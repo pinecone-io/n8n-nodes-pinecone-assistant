@@ -163,6 +163,22 @@ export const versionDescription: INodeTypeDescription = {
                 show: {
                     operation: ['getContextSnippets'],
                     resource: ['contextSnippet'],
+                    '@tool': [false],
+                },
+            },
+            description: 'The query used to retrieve the context snippets',
+        },
+        {
+            displayName: 'Query',
+            name: 'query',
+            type: 'string',
+            default: '={{ /*n8n-auto-generated-fromAI-override*/ $fromAI("Query", "", "string") }}',
+            required: true,
+            displayOptions: {
+                show: {
+                    operation: ['getContextSnippets'],
+                    resource: ['contextSnippet'],
+                    '@tool': [true],
                 },
             },
             description: 'The query used to retrieve the context snippets',
