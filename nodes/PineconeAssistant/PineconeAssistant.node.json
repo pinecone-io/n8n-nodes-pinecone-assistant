@@ -1,5 +1,5 @@
 {
-	"node": "@pinecone-database/n8n-nodes-pinecone-assistant",
+	"node": "n8n-nodes-base.pineconeAssistant",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["AI"],
