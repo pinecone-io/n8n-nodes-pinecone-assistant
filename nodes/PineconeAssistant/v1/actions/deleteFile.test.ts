@@ -59,11 +59,13 @@ describe('deleteFile.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			'external-123',
+			undefined,
 		);
 		expect(mockDeleteFilesByIds).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			[fileId],
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith([{ json: { deleted: true } }]);
 		expect(result).toEqual(mockReturnData);
@@ -147,6 +149,7 @@ describe('deleteFile.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			'external-123',
+			undefined,
 		);
 		expect(mockDeleteFilesByIds).not.toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
@@ -210,6 +213,7 @@ describe('deleteFile.execute', () => {
 			'my-custom-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			[fileId],
+			undefined,
 		);
 	});
 

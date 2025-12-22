@@ -2,14 +2,18 @@ import type { IExecuteFunctions, IDataObject, INodeExecutionData } from 'n8n-wor
 
 import { apiRequest } from '../genericFunctions';
 
-export async function execute(this: IExecuteFunctions): Promise<INodeExecutionData[]> {	
+export async function execute(this: IExecuteFunctions, index: number): Promise<INodeExecutionData[]> {
 	const body = {} as IDataObject;
 	const qs = {} as IDataObject;
 	const requestMethod = 'GET';
 	const endpoint = 'assistants';
 	const baseUrl = 'https://api.pinecone.io';
 
-	const responseData = await apiRequest.call(this, requestMethod, baseUrl, endpoint, body, qs);
+	// Handle additional fields
+	const additionalFields = this.getNodeParameter('additionalFields', index, {}) as IDataObject;
+	const sourceTag = additionalFields?.sourceTag as string | undefined;
+
+	const responseData = await apiRequest.call(this, requestMethod, baseUrl, endpoint, body, qs, sourceTag);
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }

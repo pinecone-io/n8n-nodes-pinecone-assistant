@@ -63,6 +63,7 @@ describe('uploadFile.execute', () => {
 			{},
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 		
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
@@ -116,6 +117,7 @@ describe('uploadFile.execute', () => {
 			additionalFields,
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 		
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
@@ -194,6 +196,7 @@ describe('uploadFile.execute', () => {
 			additionalFields,
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 	});
 });

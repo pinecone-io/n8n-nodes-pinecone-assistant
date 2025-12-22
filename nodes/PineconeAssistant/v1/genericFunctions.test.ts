@@ -2,7 +2,55 @@ import type {
 	IExecuteFunctions,
 	IDataObject,
 } from 'n8n-workflow';
-import { apiRequest, deleteFilesByIds, getFiles, getFileIdsByExternalFileId, uploadFile } from './genericFunctions';
+import { apiRequest, deleteFilesByIds, getFiles, getFileIdsByExternalFileId, uploadFile, validateSourceTag } from './genericFunctions';
+
+describe('validateSourceTag', () => {
+	it('should accept tag that already starts with n8n:', () => {
+		const result = validateSourceTag('n8n:custom_tag');
+		expect(result).toBe('n8n:custom_tag');
+	});
+
+	it('should prefix tag with n8n: if not present', () => {
+		const result = validateSourceTag('custom_tag');
+		expect(result).toBe('n8n:custom_tag');
+	});
+
+	it('should accept tag with letters, colons, and underscores', () => {
+		const result = validateSourceTag('my_custom:tag');
+		expect(result).toBe('n8n:my_custom:tag');
+	});
+
+	it('should accept tag with only letters', () => {
+		const result = validateSourceTag('customtag');
+		expect(result).toBe('n8n:customtag');
+	});
+
+	it('should accept tag with multiple colons', () => {
+		const result = validateSourceTag('n8n:my:custom:tag');
+		expect(result).toBe('n8n:my:custom:tag');
+	});
+
+	it('should accept tag with numbers', () => {
+		const result = validateSourceTag('custom_tag_123');
+		expect(result).toBe('n8n:custom_tag_123');
+	});
+
+	it('should throw error for tag with spaces', () => {
+		expect(() => validateSourceTag('custom tag')).toThrow('source_tag can only contain letters, numbers, colons, and underscores');
+	});
+
+	it('should throw error for tag with hyphens', () => {
+		expect(() => validateSourceTag('custom-tag')).toThrow('source_tag can only contain letters, numbers, colons, and underscores');
+	});
+
+	it('should throw error for tag with special characters', () => {
+		expect(() => validateSourceTag('custom@tag')).toThrow('source_tag can only contain letters, numbers, colons, and underscores');
+	});
+
+	it('should throw error for empty string', () => {
+		expect(() => validateSourceTag('')).toThrow('source_tag can only contain letters, numbers, colons, and underscores');
+	});
+});
 
 describe('genericFunctions', () => {
 	let mockExecuteFunctions: jest.Mocked<IExecuteFunctions>;
@@ -58,7 +106,7 @@ describe('genericFunctions', () => {
 					json: true,
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant_v1',
 					},
 				}),
 			);
@@ -96,7 +144,7 @@ describe('genericFunctions', () => {
 					json: true,
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant_v1',
 					},
 				}),
 			);
@@ -141,7 +189,7 @@ describe('genericFunctions', () => {
 					qs: {},
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant_v1',
 					},
 				}),
 			);
@@ -286,6 +334,121 @@ describe('genericFunctions', () => {
 				apiRequest.call(mockExecuteFunctions, method, baseUrl, endpoint, body),
 			).rejects.toThrow('API request failed');
 			expect(mockHttpRequest).toHaveBeenCalled();
+		});
+
+		it('should prefix custom source tag with n8n: if not present', async () => {
+			// Arrange
+			const method = 'POST';
+			const baseUrl = 'https://prod-1-data.ke.pinecone.io';
+			const endpoint = 'files/test-assistant';
+			const body = { data: 'test' };
+			const sourceTag = 'custom_source_tag';
+			const mockResponse = { id: 'file1' };
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			await apiRequest.call(
+				mockExecuteFunctions,
+				method,
+				baseUrl,
+				endpoint,
+				body,
+				undefined,
+				sourceTag,
+			);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					headers: {
+						'X-Pinecone-API-Version': '2025-10',
+						'User-Agent': 'source_tag=n8n:custom_source_tag',
+					},
+				}),
+			);
+		});
+
+		it('should use custom source tag that already has n8n: prefix', async () => {
+			// Arrange
+			const method = 'GET';
+			const baseUrl = 'https://prod-1-data.ke.pinecone.io';
+			const endpoint = 'assistants';
+			const body = {};
+			const sourceTag = 'n8n:custom_source_tag';
+			const mockResponse = { assistants: [] };
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			await apiRequest.call(
+				mockExecuteFunctions,
+				method,
+				baseUrl,
+				endpoint,
+				body,
+				undefined,
+				sourceTag,
+			);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					headers: {
+						'X-Pinecone-API-Version': '2025-10',
+						'User-Agent': 'source_tag=n8n:custom_source_tag',
+					},
+				}),
+			);
+		});
+
+		it('should throw error for invalid custom source tag with characters other than alphanumeric, colon, or underscore', async () => {
+			// Arrange
+			const method = 'GET';
+			const baseUrl = 'https://prod-1-data.ke.pinecone.io';
+			const endpoint = 'assistants';
+			const body = {};
+			const sourceTag = 'custom-tag?';
+
+			// Act & Assert
+			await expect(
+				apiRequest.call(mockExecuteFunctions, method, baseUrl, endpoint, body, undefined, sourceTag),
+			).rejects.toThrow('source_tag can only contain letters, numbers, colons, and underscores');
+		});
+
+		it('should use default source tag when sourceTag is undefined', async () => {
+			// Arrange
+			const method = 'GET';
+			const baseUrl = 'https://prod-1-data.ke.pinecone.io';
+			const endpoint = 'assistants';
+			const body = {};
+			const mockResponse = { assistants: [] };
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			await apiRequest.call(
+				mockExecuteFunctions,
+				method,
+				baseUrl,
+				endpoint,
+				body,
+				undefined,
+				undefined,
+			);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.objectContaining({
+					headers: {
+						'X-Pinecone-API-Version': '2025-10',
+						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant_v1',
+					},
+				}),
+			);
 		});
 	});
 

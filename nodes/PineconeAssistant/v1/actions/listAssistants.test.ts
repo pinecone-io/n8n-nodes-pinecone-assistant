@@ -20,6 +20,7 @@ describe('listAssistants.execute', () => {
 			helpers: {
 				returnJsonArray: jest.fn(),
 			},
+			getNodeParameter: jest.fn().mockReturnValue({}),
 		} as unknown as jest.Mocked<IExecuteFunctions>;
 	});
 
@@ -38,7 +39,7 @@ describe('listAssistants.execute', () => {
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
-		const result = await execute.call(mockExecuteFunctions);
+		const result = await execute.call(mockExecuteFunctions, 0);
 
 		// Assert
 		expect(mockApiRequest).toHaveBeenCalledWith(
@@ -47,6 +48,7 @@ describe('listAssistants.execute', () => {
 			'assistants',
 			{},
 			{},
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -61,7 +63,7 @@ describe('listAssistants.execute', () => {
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
-		const result = await execute.call(mockExecuteFunctions);
+		const result = await execute.call(mockExecuteFunctions, 0);
 
 		// Assert
 		expect(mockApiRequest).toHaveBeenCalledWith(
@@ -70,6 +72,7 @@ describe('listAssistants.execute', () => {
 			'assistants',
 			{},
 			{},
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -82,7 +85,7 @@ describe('listAssistants.execute', () => {
 		mockApiRequest.mockRejectedValue(error);
 
 		// Act & Assert
-		await expect(execute.call(mockExecuteFunctions)).rejects.toThrow('API request failed');
+		await expect(execute.call(mockExecuteFunctions, 0)).rejects.toThrow('API request failed');
 		expect(mockApiRequest).toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
@@ -96,7 +99,7 @@ describe('listAssistants.execute', () => {
 		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
 
 		// Act
-		const result = await execute.call(mockExecuteFunctions);
+		const result = await execute.call(mockExecuteFunctions, 0);
 
 		// Assert
 		expect(mockApiRequest).toHaveBeenCalledWith(
@@ -105,6 +108,7 @@ describe('listAssistants.execute', () => {
 			'assistants',
 			{},
 			{},
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);

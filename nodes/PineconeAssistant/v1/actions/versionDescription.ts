@@ -1,6 +1,15 @@
 /* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import { NodeConnectionTypes, type INodeTypeDescription } from "n8n-workflow";
 
+const SOURCE_TAG_OPTION = {
+    displayName: 'Source Tag',
+    name: 'sourceTag',
+    type: 'string' as const,
+    default: '',
+    placeholder: 'n8n:n8n_nodes_pinecone_assistant_v1',
+    description: 'Specify a source tag to attribute usage to this integration. This is primarily used for Pinecone integration partners. Read more in the <a href="https://docs.pinecone.io/integrations/build-integration/attribute-usage-to-your-integration">Pinecone documentation</a>',
+};
+
 export const versionDescription: INodeTypeDescription = {
     displayName: 'Pinecone Assistant',
     name: 'pineconeAssistant',
@@ -66,6 +75,22 @@ export const versionDescription: INodeTypeDescription = {
             default: 'listAssistants',
             required: true,
             noDataExpression: true,
+        },
+        {
+            displayName: 'Additional Fields',
+            name: 'additionalFields',
+            type: 'collection',
+            placeholder: 'Add field',
+            default: {},
+            displayOptions: {
+                show: {
+                    operation: ['listAssistants'],
+                    resource: ['assistant'],
+                },
+            },
+            options: [
+                SOURCE_TAG_OPTION,
+            ],
         },
         {
             displayName: 'Operation',
@@ -209,7 +234,7 @@ export const versionDescription: INodeTypeDescription = {
                     default: 2048,
                     description: 'The maximum context snippet size in tokens'
 
-                },					
+                },
                 {
                     displayName: 'Metadata Filter',
                     name: 'metadataFilter',
@@ -252,7 +277,8 @@ export const versionDescription: INodeTypeDescription = {
                     default: JSON.stringify({ year: { $gt: 2023 } }, null, 2),
                     description: 'Limit the context snippets to only those from files matching the metadata filter',
                     hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
-                },					
+                },
+                SOURCE_TAG_OPTION,
             ],
         },
         {
@@ -274,13 +300,29 @@ export const versionDescription: INodeTypeDescription = {
             type: 'string',
             default: '',
             required: true,
-            displayOptions: { 
+            displayOptions: {
                 show: {
                     operation: ['deleteFile'],
                     resource: ['file'],
                 },
             },
             description: 'The external file ID to identify the file in the Pinecone Assistant. If there are multiple files with the same external file ID, this operation will apply to all files.',
+        },
+        {
+            displayName: 'Additional Fields',
+            name: 'additionalFields',
+            type: 'collection',
+            placeholder: 'Add field',
+            default: {},
+            displayOptions: {
+                show: {
+                    operation: ['deleteFile'],
+                    resource: ['file'],
+                },
+            },
+            options: [
+                SOURCE_TAG_OPTION,
+            ],
         },
         {
             displayName: 'External File ID',
@@ -343,7 +385,8 @@ export const versionDescription: INodeTypeDescription = {
                             ],
                         },
                     ],
-                }
+                },
+                SOURCE_TAG_OPTION,
             ],
         },
         {
@@ -358,7 +401,7 @@ export const versionDescription: INodeTypeDescription = {
                     resource: ['file'],
                 },
             },
-            options: [					
+            options: [
                 {
                     displayName: 'Metadata Filter',
                     name: 'metadataFilter',
@@ -402,6 +445,7 @@ export const versionDescription: INodeTypeDescription = {
                     description: 'Limit the list of files to only those matching the metadata filter',
                     hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
                 },
+                SOURCE_TAG_OPTION,
             ],
         },
     ],
