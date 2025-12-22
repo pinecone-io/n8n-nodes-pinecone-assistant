@@ -12,30 +12,27 @@ export interface AssistantData {
 	host: string;
 }
 
-/**
- * Validate and normalize source_tag format
- * - Automatically prefixes with "n8n:" if not already present
- * - Can only contain letters, numbers, colons, and underscores
- */
-export function validateSourceTag(sourceTag: string): string {
-	if (!sourceTag || sourceTag.trim() === '') {
-		throw new Error('source_tag can only contain letters, numbers, colons, and underscores');
-	}
-
-	let normalizedTag = sourceTag;
-
+export function normalizeSourceTag(sourceTag?: string): string {
+	sourceTag = sourceTag || 'n8n:n8n_nodes_pinecone_assistant';
+  
 	// Prefix with "n8n:" if not already present
-	if (!normalizedTag.startsWith('n8n:')) {
-		normalizedTag = `n8n:${normalizedTag}`;
+	if (!sourceTag.startsWith('n8n:')) {
+		sourceTag = `n8n:${sourceTag}`;
 	}
 
-	const validPattern = /^[a-zA-Z0-9:_]+$/;
-	if (!validPattern.test(normalizedTag)) {
-		throw new Error('source_tag can only contain letters, numbers, colons, and underscores');
-	}
-
-	return normalizedTag;
-}
+	/**
+	 * normalize sourceTag
+	 * 1. Lowercase
+	 * 2. Limit charset to [a-z0-9_ :]
+	 * 3. Trim left/right spaces
+	 * 4. Condense multiple spaces to one, and replace with underscore
+	 */
+	return sourceTag
+	  .toLowerCase()
+	  .replace(/[^a-z0-9_ :]/g, '')
+	  .trim()
+	  .replace(/[ ]+/g, '_');
+  };
 
 /**
  * Check if body contains file data (for multipart/form-data)
@@ -85,11 +82,7 @@ export async function apiRequest(
 	sourceTag?: string,
 ): Promise<unknown> {
 	query = query || {};
-	let finalSourceTag = sourceTag || 'n8n:n8n_nodes_pinecone_assistant_v1';
-
-	if (sourceTag) {
-		finalSourceTag = validateSourceTag(sourceTag);
-	}
+	const normalizedSourceTag = normalizeSourceTag(sourceTag);
 
 	const options: IHttpRequestOptions = {
         method,
@@ -98,7 +91,7 @@ export async function apiRequest(
 		url: `${baseUrl}/assistant/${endpoint}`,
         headers: {
             'X-Pinecone-API-Version': '2025-10',
-            'User-Agent': `source_tag=${finalSourceTag}`,
+            'User-Agent': `source_tag=${normalizedSourceTag}`,
 		},
 	};
 	
