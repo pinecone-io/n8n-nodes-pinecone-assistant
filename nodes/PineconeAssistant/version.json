@@ -1,0 +1,5 @@
+{
+  "name": "@pinecone-database/n8n-nodes-pinecone-assistant",
+  "version": "0.1.4",
+  "defaultSourceTag": "n8n:n8n_nodes_pinecone_assistant"
+}

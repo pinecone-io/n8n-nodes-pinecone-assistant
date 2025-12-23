@@ -29,7 +29,8 @@
         "release": "n8n-node release",
         "prepublishOnly": "n8n-node prerelease",
         "test": "jest",
-        "test:watch": "jest --watch"
+        "test:watch": "jest --watch",
+        "version": "jq --null-input --arg version $npm_package_version '{\"name\": \"@pinecone-database/n8n-nodes-pinecone-assistant\", \"version\": $version, \"defaultSourceTag\": \"n8n:n8n_nodes_pinecone_assistant\"}' > nodes/PineconeAssistant/version.json"
     },
     "files": [
         "dist"
@@ -60,5 +61,10 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "release-it": {
+        "hooks": {
+            "after:bump": "pnpm run version"
+        }
     }
 }

@@ -7,13 +7,15 @@ import {
 	type IHttpRequestOptions
 } from 'n8n-workflow';
 
+import * as packageInfo from '../version.json';
+
 export interface AssistantData {
 	name: string;
 	host: string;
 }
 
 export function normalizeSourceTag(sourceTag?: string): string {
-	sourceTag = sourceTag || 'n8n:n8n_nodes_pinecone_assistant';
+	sourceTag = sourceTag || packageInfo.defaultSourceTag;
   
 	// Prefix with "n8n:" if not already present
 	if (!sourceTag.startsWith('n8n:')) {
@@ -91,7 +93,7 @@ export async function apiRequest(
 		url: `${baseUrl}/assistant/${endpoint}`,
         headers: {
             'X-Pinecone-API-Version': '2025-10',
-            'User-Agent': `source_tag=${normalizedSourceTag}`,
+			'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${normalizedSourceTag}`,
 		},
 	};
 	

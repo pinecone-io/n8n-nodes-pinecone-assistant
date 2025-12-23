@@ -2,6 +2,9 @@ import type {
 	IExecuteFunctions,
 	IDataObject,
 } from 'n8n-workflow';
+
+import * as packageInfo from '../version.json';
+
 import { apiRequest, deleteFilesByIds, getFiles, getFileIdsByExternalFileId, uploadFile, normalizeSourceTag } from './genericFunctions';
 
 describe('normalizeSourceTag', () => {
@@ -47,7 +50,7 @@ describe('normalizeSourceTag', () => {
 
 	it('should set source tag to default for empty string', () => {
 		const result = normalizeSourceTag('');
-		expect(result).toBe('n8n:n8n_nodes_pinecone_assistant');
+		expect(result).toBe(packageInfo.defaultSourceTag);
 	});
 });
 
@@ -105,7 +108,7 @@ describe('genericFunctions', () => {
 					json: true,
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}`,
 					},
 				}),
 			);
@@ -143,7 +146,7 @@ describe('genericFunctions', () => {
 					json: true,
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}`,
 					},
 				}),
 			);
@@ -188,7 +191,7 @@ describe('genericFunctions', () => {
 					qs: {},
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}`,
 					},
 				}),
 			);
@@ -363,7 +366,7 @@ describe('genericFunctions', () => {
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:custom_source_tag',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=n8n:custom_source_tag`,
 					},
 				}),
 			);
@@ -397,7 +400,7 @@ describe('genericFunctions', () => {
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:custom_source_tag',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=n8n:custom_source_tag`,
 					},
 				}),
 			);
@@ -430,7 +433,7 @@ describe('genericFunctions', () => {
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
-						'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+						'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}`,
 					},
 				}),
 			);

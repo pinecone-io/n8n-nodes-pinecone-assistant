@@ -6,7 +6,7 @@ const SOURCE_TAG_OPTION = {
     name: 'sourceTag',
     type: 'string' as const,
     default: '',
-    placeholder: 'n8n:n8n_nodes_pinecone_assistant_v1',
+    placeholder: 'n8n:n8n_nodes_pinecone_assistant',
     description: 'Specify a source tag to attribute usage to this integration. This is primarily used for Pinecone integration partners. Read more in the <a href="https://docs.pinecone.io/integrations/build-integration/attribute-usage-to-your-integration">Pinecone documentation</a>',
 };
 
