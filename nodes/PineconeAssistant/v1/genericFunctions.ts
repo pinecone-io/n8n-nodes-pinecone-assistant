@@ -7,10 +7,34 @@ import {
 	type IHttpRequestOptions
 } from 'n8n-workflow';
 
+import * as packageInfo from '../version.json';
+
 export interface AssistantData {
 	name: string;
 	host: string;
 }
+
+export function normalizeSourceTag(sourceTag?: string): string {
+	sourceTag = sourceTag || packageInfo.defaultSourceTag;
+  
+	// Prefix with "n8n:" if not already present
+	if (!sourceTag.startsWith('n8n:')) {
+		sourceTag = `n8n:${sourceTag}`;
+	}
+
+	/**
+	 * normalize sourceTag
+	 * 1. Lowercase
+	 * 2. Limit charset to [a-z0-9_ :]
+	 * 3. Trim left/right spaces
+	 * 4. Condense multiple spaces to one, and replace with underscore
+	 */
+	return sourceTag
+	  .toLowerCase()
+	  .replace(/[^a-z0-9_ :]/g, '')
+	  .trim()
+	  .replace(/[ ]+/g, '_');
+  };
 
 /**
  * Check if body contains file data (for multipart/form-data)
@@ -57,8 +81,11 @@ export async function apiRequest(
 	endpoint: string,
 	body: object,
 	query?: IDataObject,
+	sourceTag?: string,
 ): Promise<unknown> {
 	query = query || {};
+	const normalizedSourceTag = normalizeSourceTag(sourceTag);
+
 	const options: IHttpRequestOptions = {
         method,
 		body,
@@ -66,7 +93,7 @@ export async function apiRequest(
 		url: `${baseUrl}/assistant/${endpoint}`,
         headers: {
             'X-Pinecone-API-Version': '2025-10',
-            'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+			'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${normalizedSourceTag}`,
 		},
 	};
 	
@@ -84,19 +111,19 @@ export async function apiRequest(
 	return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
 }
 
-export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, filterValues: IDataObject | null | undefined) {
+export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, filterValues: IDataObject | null | undefined, sourceTag?: string) {
 	let endpoint = `files/${assistantName}`;
-	
+
 	if (filterValues && Object.keys(filterValues).length > 0) {
 		endpoint += `?filter=${encodeURIComponent(JSON.stringify(filterValues))}`;
 	}
 
-	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {});
+	return await apiRequest.call(this, 'GET', assistantHostUrl, endpoint, {}, undefined, sourceTag);
 }
 
-export async function getFileIdsByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string): Promise<string[]> {
+export async function getFileIdsByExternalFileId(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, externalFileId: string, sourceTag?: string): Promise<string[]> {
 	const filterValues = { external_file_id: externalFileId };
-	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, filterValues) as { files: IDataObject[] };
+	const {files} = await getFiles.call(this, assistantName, assistantHostUrl, filterValues, sourceTag) as { files: IDataObject[] };
 
 	return files.map(file => file.id as string);
 }
@@ -109,13 +136,14 @@ export async function deleteFilesByIds(
 	assistantName: string,
 	assistantHostUrl: string,
 	fileIds: string[],
+	sourceTag?: string,
 ): Promise<void> {
 	const body = {} as IDataObject;
 	const qs = {} as IDataObject;
 	const requestMethod = 'DELETE';
 	for (const fileId of fileIds) {
 		const endpoint = `files/${assistantName}/${fileId}`;
-		await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+		await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs, sourceTag);
 	}
 }
 
@@ -130,11 +158,12 @@ export async function uploadFile(
 	additionalFields: IDataObject | undefined,
 	index: number,
 	inputDataFieldName: string,
+	sourceTag?: string,
 ): Promise<unknown> {
 	const qs = {} as IDataObject;
 	const requestMethod = 'POST';
 	let endpoint = `files/${assistantName}`;
-	
+
 	// Handle additional fields - metadata
 	let metadataValues = {} as IDataObject;
 	if (additionalFields?.metadata) {
@@ -153,8 +182,8 @@ export async function uploadFile(
 	const formData = new FormData();
 	formData.append('file', fileBlob, binaryData.fileName)
 	const body = formData;
-	
-	return await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+
+	return await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs, sourceTag);
 }
 
 /**

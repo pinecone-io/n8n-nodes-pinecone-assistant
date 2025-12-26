@@ -12,14 +12,16 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	if (!externalFileId) {
         throw new NodeOperationError(this.getNode(), 'External file ID is required to update a file.');
 	}
-    
-    const fileIds = await getFileIdsByExternalFileId.call(this, assistantName, assistantHostUrl, externalFileId);
-    
-    // delete files by id
-	await deleteFilesByIds.call(this, assistantName, assistantHostUrl, fileIds);
-	
-    // upload updated file 
+
 	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
+	const sourceTag = additionalFields?.sourceTag as string | undefined;
+
+    const fileIds = await getFileIdsByExternalFileId.call(this, assistantName, assistantHostUrl, externalFileId, sourceTag);
+
+    // delete files by id
+	await deleteFilesByIds.call(this, assistantName, assistantHostUrl, fileIds, sourceTag);
+
+    // upload updated file
 	const responseData = await uploadFile.call(
 		this,
 		assistantName,
@@ -28,6 +30,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		additionalFields,
 		index,
 		inputDataFieldName,
+		sourceTag,
 	);
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);

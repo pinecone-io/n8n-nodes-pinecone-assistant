@@ -20,7 +20,7 @@ export async function router(this: IExecuteFunctions): Promise<INodeExecutionDat
                 if (resource === 'contextSnippet' && operation === 'getContextSnippets') {
                     responseData = await getContextSnippets.execute.call(this, i);
                 } else if (resource === 'assistant' && operation === 'listAssistants') {
-                    responseData = await listAssistants.execute.call(this);
+                    responseData = await listAssistants.execute.call(this, i);
                 } else if (resource === 'file' && operation === 'listFiles') {
                     responseData = await listFiles.execute.call(this, i);
                 } else if (resource === 'file' && operation === 'uploadFile') {

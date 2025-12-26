@@ -67,6 +67,7 @@ describe('listFiles.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			undefined,
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -101,6 +102,7 @@ describe('listFiles.execute', () => {
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'empty-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
@@ -137,6 +139,7 @@ describe('listFiles.execute', () => {
 			'my-custom-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			undefined,
+			undefined,
 		);
 	});
 
@@ -165,6 +168,7 @@ describe('listFiles.execute', () => {
 		expect(mockGetFiles).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
+			undefined,
 			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
@@ -216,6 +220,7 @@ describe('listFiles.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			constructedFilterValues,
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -263,6 +268,7 @@ describe('listFiles.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			parsedFilterValues,
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);

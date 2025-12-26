@@ -72,6 +72,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/test-assistant/context',
 			{ query: 'What is machine learning?', top_k: topK, snippet_size: snippetSize },
 			{},
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -111,6 +112,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/test-assistant/context',
 			{ query: 'test query', top_k: topK, snippet_size: snippetSize },
 			{},
+			undefined,
 		);
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockResponseData);
 		expect(result).toEqual(mockReturnData);
@@ -150,6 +152,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/my-custom-assistant/context',
 			{ query: 'custom query', top_k: topK, snippet_size: snippetSize },
 			{},
+			undefined,
 		);
 	});
 
@@ -215,6 +218,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/test-assistant/context',
 			{ query: 'What is "machine learning" & AI?', top_k: topK, snippet_size: snippetSize },
 			{},
+			undefined,
 		);
 	});
 
@@ -359,6 +363,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/test-assistant/context',
 			{ query: 'test query' },
 			{},
+			undefined,
 		);
 		expect(mockApiRequest).toHaveBeenCalledTimes(1);
 		const callArgs = mockApiRequest.mock.calls[0];
@@ -402,6 +407,7 @@ describe('getContextSnippets.execute', () => {
 			'chat/test-assistant/context',
 			{ query: 'test query' },
 			{},
+			undefined,
 		);
 		const callArgs = mockApiRequest.mock.calls[0];
 		const requestBody = callArgs[3] as IDataObject;
@@ -452,6 +458,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query', filter: mockFilterResult },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -492,6 +499,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query' },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -533,6 +541,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query' },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -577,6 +586,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query' },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -618,6 +628,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query', top_k: topK },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -671,6 +682,7 @@ describe('getContextSnippets.execute', () => {
 					snippet_size: snippetSize,
 				},
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -724,6 +736,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query', filter: expectedFilter },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;
@@ -770,6 +783,7 @@ describe('getContextSnippets.execute', () => {
 				'chat/test-assistant/context',
 				{ query: 'test query', filter: expectedFilter },
 				{},
+				undefined,
 			);
 			const callArgs = mockApiRequest.mock.calls[0];
 			const requestBody = callArgs[3] as IDataObject;

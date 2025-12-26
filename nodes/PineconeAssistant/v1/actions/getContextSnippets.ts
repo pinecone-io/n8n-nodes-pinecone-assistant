@@ -21,7 +21,8 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 	// Handle additional fields
 	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
-	
+	const sourceTag = additionalFields?.sourceTag as string | undefined;
+
 	// Only one of metadataFilter or advancedMetadataFilter can be set, not both
 	if (additionalFields?.metadataFilter && additionalFields?.advancedMetadataFilter) {
 		throw new NodeOperationError(
@@ -67,7 +68,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		body.snippet_size = snippetSize;
 	}
 
-	const responseData = await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs);
+	const responseData = await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs, sourceTag);
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }

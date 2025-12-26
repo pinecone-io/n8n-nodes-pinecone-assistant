@@ -70,14 +70,16 @@ describe('updateFile.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			'external-123',
+			undefined,
 		);
-		
+
 		expect(mockDeleteFilesByIds).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			[fileId],
+			undefined,
 		);
-		
+
 		expect(mockUploadFile).toHaveBeenCalledWith(
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
@@ -85,6 +87,7 @@ describe('updateFile.execute', () => {
 			additionalFields,
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 		
 		expect(mockExecuteFunctions.helpers.returnJsonArray).toHaveBeenCalledWith(mockUploadResponse);
@@ -126,6 +129,7 @@ describe('updateFile.execute', () => {
 			'test-assistant',
 			'https://prod-1-data.ke.pinecone.io',
 			[],
+			undefined,
 		);
 		expect(mockUploadFile).toHaveBeenCalledWith(
 			'test-assistant',
@@ -134,6 +138,7 @@ describe('updateFile.execute', () => {
 			additionalFields,
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 		expect(result).toEqual(mockReturnData);
 	});
@@ -184,6 +189,7 @@ describe('updateFile.execute', () => {
 			additionalFields,
 			index,
 			inputDataFieldName,
+			undefined,
 		);
 		expect(result).toEqual(mockReturnData);
 	});

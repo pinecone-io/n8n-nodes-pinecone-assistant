@@ -12,7 +12,8 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		throw new NodeOperationError(this.getNode(), 'An external file ID is required to upload a file.');
 	}
 	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
-	
+	const sourceTag = additionalFields?.sourceTag as string | undefined;
+
 	const responseData = await uploadFile.call(
 		this,
 		assistantName,
@@ -21,6 +22,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 		additionalFields,
 		index,
 		inputDataFieldName,
+		sourceTag,
 	);
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);

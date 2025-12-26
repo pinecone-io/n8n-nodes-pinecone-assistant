@@ -8,6 +8,7 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 	// Handle additional fields
 	const additionalFields = this.getNodeParameter('additionalFields', index) as IDataObject;
+	const sourceTag = additionalFields?.sourceTag as string | undefined;
 
 	// Only one of metadataFilter or advancedMetadataFilter can be set, not both
 	if (additionalFields?.metadataFilter && additionalFields?.advancedMetadataFilter) {
@@ -35,8 +36,8 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 			throw new NodeOperationError(this.getNode(), `Invalid JSON in advancedMetadataFilter: ${parseError.message}. Please ensure it is valid JSON.`, { itemIndex: index });
 		}
 	}
-	
-	const responseData = await getFiles.call(this, assistantName, assistantHostUrl, filterValues);
+
+	const responseData = await getFiles.call(this, assistantName, assistantHostUrl, filterValues, sourceTag);
 
 	return this.helpers.returnJsonArray(responseData as IDataObject[]);
 }

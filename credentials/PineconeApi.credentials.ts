@@ -5,6 +5,8 @@ import type {
     INodeProperties,
 } from 'n8n-workflow';
 
+import * as packageInfo from '../nodes/PineconeAssistant/version.json';
+
 export class PineconeApi implements ICredentialType {
     name = 'pineconeAssistantApi';
 
@@ -34,7 +36,7 @@ export class PineconeApi implements ICredentialType {
                     headers: {
                             'Api-key': '={{$credentials.apiKey}}',
                             'X-Pinecone-API-Version': '2025-10',
-                            'User-Agent': 'source_tag=n8n:n8n_nodes_pinecone_assistant',
+                            'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}:credentials`,
                     },
             },
     };
