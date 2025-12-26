@@ -181,7 +181,9 @@ Login to npm.
 $ pnpm login
 ```
 
-The release command builds, lints, updates the changelog, creates git tags, creates a GitHub release, and publishes the package to npm.
+The release command builds, lints, updates the changelog, updates the version number in `package.json` and `version.json`, creates git tags, creates a GitHub release, and publishes the package to npm.
+
+Note: This executes the same steps as `n8n-node release` plus updates the `version.json` file.
 
 ```bash
 $ pnpm run release

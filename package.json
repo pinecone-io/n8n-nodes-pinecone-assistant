@@ -26,7 +26,7 @@
         "dev": "n8n-node dev",
         "lint": "n8n-node lint",
         "lint:fix": "n8n-node lint --fix",
-        "release": "n8n-node release",
+        "release": "npx release-it",
         "prepublishOnly": "n8n-node prerelease",
         "test": "jest",
         "test:watch": "jest --watch",
@@ -63,8 +63,22 @@
         "access": "public"
     },
     "release-it": {
+        "git": {
+            "requireBranch": "main",
+            "requireCleanWorkingDir": true,
+            "requireUpstream": true,
+            "requireCommits": true,
+            "commit": true,
+            "tag": true,
+            "push": true,
+            "changelog": "npx auto-changelog --stdout --unreleased --commit-limit false -u --hide-credit"
+        },
+        "github": {
+            "release": true
+        },
         "hooks": {
-            "after:bump": "pnpm run version"
+            "before:init": "pnpm run lint && pnpm run build",
+            "after:bump": "pnpm run version && npx auto-changelog -p"
         }
     }
 }
