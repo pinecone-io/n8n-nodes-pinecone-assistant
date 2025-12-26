@@ -2,10 +2,7 @@
 	"node": "n8n-nodes-base.pineconeAssistant",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
-	"categories": ["AI"],
-	"subcategories": {
-		"AI": ["Miscellaneous"]
-	},
+	"categories": ["Development", "Developer Tools"],
 	"resources": {
 		"credentialDocumentation": [
 			{
