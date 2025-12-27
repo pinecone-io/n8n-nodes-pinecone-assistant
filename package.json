@@ -26,7 +26,7 @@
         "dev": "n8n-node dev",
         "lint": "n8n-node lint",
         "lint:fix": "n8n-node lint --fix",
-        "release": "npx release-it",
+        "release": "RELEASE_MODE=true npx release-it",
         "prepublishOnly": "n8n-node prerelease",
         "test": "jest",
         "test:watch": "jest --watch",
