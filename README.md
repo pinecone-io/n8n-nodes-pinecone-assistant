@@ -91,9 +91,11 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 - **Assistant Name** (required): The name of the Pinecone Assistant to query for context snippets. This list is populated dynamically based on your available assistants.
 - **Query** (required): The query text used to retrieve relevant context snippets. This is the search term that will be used to find matching content in your assistant's files.
 - **Additional Fields:**
-  - **Top K** (optional): The maximum number of context snippets to return. Default is 16.
-  - **Snippet Size** (optional): The maximum context snippet size in tokens. Default is 2048.
+  - **Include Multimodal Context** (optional): Whether to include multimodal context snippets. Default is `true`. When enabled, the assistant will return multimodal context snippets (e.g., images from PDFs) in addition to text snippets.
+  - **Include Binary Content** (optional): Whether to include binary content with multimodal context snippets. Default is `true`. Only applies when Include Multimodal Context is enabled. When enabled, binary content (e.g., base64 image data) will be included in the response.
   - **Metadata Filter** (optional): Limit the context snippets to only those from files matching the metadata filter. Add key-value pairs to filter by specific metadata.
+  - **Snippet Size** (optional): The maximum context snippet size in tokens. Default is 2048.
+  - **Top K** (optional): The maximum number of context snippets to return. Default is 16.
   - **Advanced Metadata Filter (JSON)** (optional): Use advanced metadata filtering when you need support for operators like `$or`, `$ne`, `$in`, etc. Provide a JSON object with filter expressions. Learn more about metadata filter expressions in the [Pinecone documentation](https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions).
   - **Source Tag** (optional): Specify a source tag to attribute usage to this integration. This is primarily used for Pinecone integration partners. Read more in the [Pinecone documentation](https://docs.pinecone.io/integrations/build-integration/attribute-usage-to-your-integration).
 

@@ -219,22 +219,23 @@ export const versionDescription: INodeTypeDescription = {
                     resource: ['contextSnippet'],
                 },
             },
+            // sort disabled because 1/ last two items should be used less frequently, 2/ some options go together, and 3/ aligns with other operations
+            // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
             options: [
                 {
-                    displayName: 'Top K',
-                    name: 'topK',
-                    type: 'number',
-                    default: 16,
-                    description: 'The maximum number of context snippets to return'
+                    displayName: 'Include Multimodal Context',
+                    name: 'includeMultimodalContext',
+                    type: 'boolean',
+                    default: true,
+                    description: 'Whether to include multimodal context snippets',
                 },
                 {
-                    displayName: 'Snippet Size',
-                    name: 'snippetSize',
-                    type: 'number',
-                    default: 2048,
-                    description: 'The maximum context snippet size in tokens'
-
-                },
+                    displayName: 'Include Binary Content',
+                    name: 'includeBinaryContent',
+                    type: 'boolean',
+                    default: true,
+                    description: 'Whether to include binary content with multimodal context snippets. Only applies when Include Multimodal Context is enabled.',
+                },                
                 {
                     displayName: 'Metadata Filter',
                     name: 'metadataFilter',
@@ -271,13 +272,27 @@ export const versionDescription: INodeTypeDescription = {
                     ],
                 },
                 {
+                    displayName: 'Snippet Size',
+                    name: 'snippetSize',
+                    type: 'number',
+                    default: 2048,
+                    description: 'The maximum context snippet size in tokens'
+                },                
+                {
+                    displayName: 'Top K',
+                    name: 'topK',
+                    type: 'number',
+                    default: 16,
+                    description: 'The maximum number of context snippets to return'
+                },                
+                {
                     displayName: 'Advanced Metadata Filter (JSON)',
                     name: 'advancedMetadataFilter',
                     type: 'json',
                     default: JSON.stringify({ year: { $gt: 2023 } }, null, 2),
                     description: 'Limit the context snippets to only those from files matching the metadata filter',
                     hint: 'Use advanced metadata filtering when you need support for operators like $or, $ne, $in, etc. Learn more about metadata filter expressions <a href="https://docs.pinecone.io/guides/search/filter-by-metadata#metadata-filter-expressions">in the Pinecone documentation</a>.',
-                },
+                },                
                 SOURCE_TAG_OPTION,
             ],
         },
@@ -385,6 +400,13 @@ export const versionDescription: INodeTypeDescription = {
                             ],
                         },
                     ],
+                },
+                {
+                    displayName: 'Multimodal File',
+                    name: 'multimodalFile',
+                    type: 'boolean',
+                    default: false,
+                    description: 'Whether to enable multimodal context for a PDF file',
                 },
                 SOURCE_TAG_OPTION,
             ],

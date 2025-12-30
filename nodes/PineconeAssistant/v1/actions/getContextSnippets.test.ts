@@ -819,5 +819,395 @@ describe('getContextSnippets.execute', () => {
 			expect(mockConstructMetadataValues).not.toHaveBeenCalled();
 		});
 	});
+
+	describe('multimodal PDF functionality', () => {
+		it('should add multimodal body parameter when includeMultimodalContext is true', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: true },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('multimodal');
+			expect(requestBody.multimodal).toBe(true);
+			expect(requestBody).not.toHaveProperty('include_binary_content');
+		});
+
+		it('should add multimodal body parameter when includeMultimodalContext is false', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = false;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: false },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('multimodal');
+			expect(requestBody.multimodal).toBe(false);
+		});
+
+		it('should not add multimodal body parameter when includeMultimodalContext is undefined', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return {};
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query' },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).not.toHaveProperty('multimodal');
+		});
+
+		it('should add multimodal body parameter along with other parameters when includeMultimodalContext is true', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const topK = 10;
+			const snippetSize = 500;
+			const includeMultimodalContext = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { topK, snippetSize, includeMultimodalContext };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', top_k: topK, snippet_size: snippetSize, multimodal: true },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('multimodal');
+			expect(requestBody.multimodal).toBe(true);
+			expect(requestBody).toHaveProperty('top_k');
+			expect(requestBody).toHaveProperty('snippet_size');
+		});
+	});
+
+	describe('includeBinaryContent functionality', () => {
+		it('should add include_binary_content when includeMultimodalContext is true and includeBinaryContent is true', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = true;
+			const includeBinaryContent = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext, includeBinaryContent };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: true, include_binary_content: true },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('include_binary_content');
+			expect(requestBody.include_binary_content).toBe(true);
+		});
+
+		it('should add include_binary_content false when includeMultimodalContext is true and includeBinaryContent is false', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = true;
+			const includeBinaryContent = false;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext, includeBinaryContent };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: true, include_binary_content: false },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('multimodal');
+			expect(requestBody.multimodal).toBe(true);
+			expect(requestBody).toHaveProperty('include_binary_content');
+			expect(requestBody.include_binary_content).toBe(false);
+		});
+
+		it('should not add include_binary_content when includeMultimodalContext is true and includeBinaryContent is undefined', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: true },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).not.toHaveProperty('include_binary_content');
+		});
+
+		it('should not add include_binary_content when includeMultimodalContext is false even if includeBinaryContent is true', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const includeMultimodalContext = false;
+			const includeBinaryContent = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { includeMultimodalContext, includeBinaryContent };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{ query: 'test query', multimodal: false },
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('multimodal');
+			expect(requestBody.multimodal).toBe(false);
+			expect(requestBody).not.toHaveProperty('include_binary_content');
+		});
+
+		it('should add include_binary_content along with other parameters when both are true', async () => {
+			// Arrange
+			const index = 0;
+			const assistantData = JSON.stringify({
+				name: 'test-assistant',
+				host: 'https://prod-1-data.ke.pinecone.io',
+			});
+			const query = 'test query';
+			const topK = 10;
+			const snippetSize = 500;
+			const includeMultimodalContext = true;
+			const includeBinaryContent = true;
+			const mockResponseData = [{ snippet: 'test snippet' }];
+			const mockReturnData: INodeExecutionData[] = [{ json: { snippet: 'test snippet' } }];
+
+			mockExecuteFunctions.getNodeParameter = jest
+				.fn()
+				.mockImplementation((paramName: string) => {
+					if (paramName === 'assistantData') return assistantData;
+					if (paramName === 'query') return query;
+					if (paramName === 'additionalFields') return { topK, snippetSize, includeMultimodalContext, includeBinaryContent };
+					return undefined;
+				});
+			mockApiRequest.mockResolvedValue(mockResponseData);
+			mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+			// Act
+			await execute.call(mockExecuteFunctions, index);
+
+			// Assert
+			expect(mockApiRequest).toHaveBeenCalledWith(
+				'POST',
+				'https://prod-1-data.ke.pinecone.io',
+				'chat/test-assistant/context',
+				{
+					query: 'test query',
+					top_k: topK,
+					snippet_size: snippetSize,
+					multimodal: true,
+					include_binary_content: true,
+				},
+				{},
+				undefined,
+			);
+			const callArgs = mockApiRequest.mock.calls[0];
+			const requestBody = callArgs[3] as IDataObject;
+			expect(requestBody).toHaveProperty('include_binary_content');
+			expect(requestBody.include_binary_content).toBe(true);
+		});
+	});
 });
 

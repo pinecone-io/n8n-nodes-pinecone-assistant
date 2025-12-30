@@ -183,6 +183,15 @@ export async function uploadFile(
 	formData.append('file', fileBlob, binaryData.fileName)
 	const body = formData;
 
+	// Add multimodal query parameter only if multimodalFile is true AND file is a PDF
+	const multimodalFile = additionalFields?.multimodalFile as boolean | undefined;
+	const isPdf = binaryData.mimeType === 'application/pdf' || 
+	              (binaryData.fileName?.toLowerCase().endsWith('.pdf') ?? false);
+	
+	if (multimodalFile === true && isPdf) {
+		qs.multimodal = 'true';
+	}
+
 	return await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs, sourceTag);
 }
 
