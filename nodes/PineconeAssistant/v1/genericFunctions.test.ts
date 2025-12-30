@@ -849,6 +849,261 @@ describe('genericFunctions', () => {
 			expect(decodedMetadata).toEqual({ external_file_id: 'external-123' });
 			expect(result).toEqual(mockResponse);
 		});
+
+		it('should add multimodal query parameter when multimodalFile is true AND file is a PDF', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				multimodalFile: true,
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.pdf' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({ multimodal: 'true' });
+		});
+
+		it('should add multimodal query parameter when multimodalFile is true AND file has .pdf extension', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				multimodalFile: true,
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.PDF',
+				mimeType: 'application/octet-stream',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.PDF' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({ multimodal: 'true' });
+		});
+
+		it('should not add multimodal query parameter when multimodalFile is true but file is not a PDF', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				multimodalFile: true,
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.txt',
+				mimeType: 'text/plain',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.txt' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({});
+		});
+
+		it('should not add multimodal query parameter when file is a PDF but multimodalFile is false', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				multimodalFile: false,
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.pdf' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({});
+		});
+
+		it('should not add multimodal query parameter when file is a PDF but multimodalFile is undefined', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.pdf',
+				mimeType: 'application/pdf',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.pdf' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({});
+		});
+
+		it('should not add multimodal query parameter when file is not PDF and multimodalFile is false', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {
+				multimodalFile: false,
+			};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.txt',
+				mimeType: 'text/plain',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.txt' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({});
+		});
+
+		it('should not add multimodal query parameter when file is not PDF and multimodalFile is undefined', async () => {
+			// Arrange
+			const assistantName = 'test-assistant';
+			const assistantHostUrl = 'https://prod-1-data.ke.pinecone.io';
+			const externalFileId = 'external-123';
+			const additionalFields: IDataObject = {};
+			const index = 0;
+			const inputDataFieldName = 'binary';
+			const mockBinaryData = {
+				fileName: 'test.txt',
+				mimeType: 'text/plain',
+			};
+			const mockFileBuffer = Buffer.from('test file content');
+			const mockResponse = { id: 'file1', name: 'test.txt' };
+
+			mockExecuteFunctionsForUpload.helpers.assertBinaryData = jest.fn().mockReturnValue(mockBinaryData);
+			mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer = jest.fn().mockResolvedValue(mockFileBuffer);
+			mockHttpRequestForUpload.mockResolvedValue(mockResponse);
+
+			// Act
+			await uploadFile.call(
+				mockExecuteFunctionsForUpload,
+				assistantName,
+				assistantHostUrl,
+				externalFileId,
+				additionalFields,
+				index,
+				inputDataFieldName,
+			);
+
+			// Assert
+			const callArgs = mockHttpRequestForUpload.mock.calls[0][1];
+			expect(callArgs.qs).toEqual({});
+		});
 	});
 
 	describe('deleteFilesByIds', () => {

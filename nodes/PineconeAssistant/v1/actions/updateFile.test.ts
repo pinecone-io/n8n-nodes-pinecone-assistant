@@ -346,5 +346,51 @@ describe('updateFile.execute', () => {
 		expect(mockUploadFile).not.toHaveBeenCalled();
 		expect(mockExecuteFunctions.helpers.returnJsonArray).not.toHaveBeenCalled();
 	});
+
+	it('should successfully update a file with multimodalFile enabled', async () => {
+		// Arrange
+		const index = 0;
+		const assistantData = JSON.stringify({
+			name: 'test-assistant',
+			host: 'https://prod-1-data.ke.pinecone.io',
+		});
+		const inputDataFieldName = 'binary';
+		const externalFileId = 'external-123';
+		const fileId = 'file-456';
+		const additionalFields = {
+			multimodalFile: true,
+		};
+		const mockUploadResponse = { id: 'file-789', name: 'test.pdf' };
+		const mockReturnData: INodeExecutionData[] = [{ json: { id: 'file-789', name: 'test.pdf' } }];
+
+		mockExecuteFunctions.getNodeParameter = jest
+			.fn()
+			.mockImplementation((paramName: string) => {
+				if (paramName === 'assistantData') return assistantData;
+				if (paramName === 'inputDataFieldName') return inputDataFieldName;
+				if (paramName === 'externalFileId') return externalFileId;
+				if (paramName === 'additionalFields') return additionalFields;
+				return undefined;
+			});
+		mockGetFileIdsByExternalFileId.mockResolvedValue([fileId]);
+		mockDeleteFilesByIds.mockResolvedValue(undefined);
+		mockUploadFile.mockResolvedValue(mockUploadResponse);
+		mockExecuteFunctions.helpers.returnJsonArray = jest.fn().mockReturnValue(mockReturnData);
+
+		// Act
+		const result = await execute.call(mockExecuteFunctions, index);
+
+		// Assert
+		expect(mockUploadFile).toHaveBeenCalledWith(
+			'test-assistant',
+			'https://prod-1-data.ke.pinecone.io',
+			'external-123',
+			additionalFields,
+			index,
+			inputDataFieldName,
+			undefined,
+		);
+		expect(result).toEqual(mockReturnData);
+	});
 });
 

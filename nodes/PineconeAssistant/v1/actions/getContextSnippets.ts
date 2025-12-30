@@ -34,6 +34,8 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 
 	const topK = additionalFields?.topK as number | undefined;
 	const snippetSize = additionalFields?.snippetSize as number | undefined;
+	const includeMultimodalContext = additionalFields?.includeMultimodalContext as boolean | undefined;
+	const includeBinaryContent = additionalFields?.includeBinaryContent as boolean | undefined;
 
 	// Simple metadata filter
 	let metadataFilter: IDataObject | undefined;
@@ -66,6 +68,17 @@ export async function execute(this: IExecuteFunctions, index: number): Promise<I
 	}
 	if (snippetSize !== undefined && snippetSize !== null) {
 		body.snippet_size = snippetSize;
+	}
+	if (includeMultimodalContext === true) {
+		body.multimodal = true;
+		// include_binary_content is only valid if multimodal true
+		if (includeBinaryContent === true) {
+			body.include_binary_content = true;
+		} else if (includeBinaryContent === false) {
+			body.include_binary_content = false;
+		}
+	} else if (includeMultimodalContext === false) {
+		body.multimodal = false;
 	}
 
 	const responseData = await apiRequest.call(this, requestMethod, assistantHostUrl, endpoint, body, qs, sourceTag);
