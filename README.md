@@ -2,7 +2,7 @@
 
 This is the official [n8n](https://n8n.io/) community node for interacting with [Pinecone](https://www.pinecone.io/) Assistant in your workflows.
 
-[Pinecone Assistant](https://docs.pinecone.io/guides/assistant/overview) allows you to build production-grade chat and agent-based applications quickly. It abstracts the complexities of implementing retrieval-augmented (RAG) systems by managing the chunking, embedding, storage, query planning, vector search, model orchestration, reranking for you.
+[Pinecone Assistant](https://docs.pinecone.io/guides/assistant/overview) allows you to build production-grade chat and agent-based applications quickly. It abstracts the complexities of implementing retrieval-augmented (RAG) systems by managing the chunking, embedding, storage, query planning, vector search, model orchestration, and reranking for you.
 
 ## Installation
 
