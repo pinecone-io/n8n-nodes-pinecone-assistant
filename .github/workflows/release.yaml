@@ -1,0 +1,118 @@
+name: 'Release: NPM Package'
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch name to release from'
+        required: false
+        type: string
+        default: ''
+      releaseType:
+        description: 'Semver release type'
+        required: false
+        type: choice
+        default: 'patch'
+        options:
+          - 'patch' # bug fixes
+          - 'minor' # new features, backwards compatible
+          - 'major' # breaking changes
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write # Required for OIDC authentication with npm trusted publishing
+
+jobs:
+  version-and-release:
+    name: Release to NPM
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
+
+      # We need to validate the ref is a branch so that we have somewhere to push the commit and tag
+      # at the end of the workflow. For this reason, naked SHAs are not allowed.
+      - name: Validate ref is a branch
+        if: inputs.ref != ''
+        shell: bash
+        run: |
+          if ! git symbolic-ref --short HEAD > /dev/null 2>&1; then
+            echo "Error: ref must be a valid branch name, not a SHA. Provided ref: ${{ inputs.ref }}. Current HEAD is detached."
+            exit 1
+          fi
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      ##### VERSION BUMP #####
+      - name: 'Bump version'
+        shell: bash
+        id: version-bump
+        run: |
+          pnpm version ${{ inputs.releaseType }} --no-git-tag-version
+          newVersion=$(jq -r '.version' package.json)
+          echo "version=$newVersion" >> $GITHUB_OUTPUT
+          echo "Bumped version to $newVersion"
+
+      ##### COMMIT AND TAG VERSION CHANGES #####
+      - name: Configure git CLI
+        shell: bash
+        run: |
+          git config --global user.email "community+n8n@pinecone.io"
+          git config --global user.name "${{ github.actor }}"
+      - name: Commit and tag version changes
+        shell: bash
+        run: |
+          git add . # commit version.json and package.json changes
+          newVersion="${{ steps.version-bump.outputs.version }}"
+          git commit -m "[skip ci] Publish release $newVersion"
+          git tag "$newVersion"
+
+      ##### NPM PUBLISH #####
+      - name: Build before publish
+        shell: bash
+        run: pnpm run build  
+      - name: Publish to npm
+        shell: bash
+        run: pnpm publish --provenance --tag latest --no-git-checks
+
+      ##### GIT PUSH COMMIT AND TAG #####
+      - name: Push commit and tag
+        shell: bash
+        run: |
+          newVersion="${{ steps.version-bump.outputs.version }}"
+          if [ -n "${{ github.event.inputs.ref }}" ]; then
+            git push origin "${{ github.event.inputs.ref }}" --follow-tags
+            git push origin "v$newVersion"
+          else
+            git push --follow-tags
+            git push origin "v$newVersion"
+          fi
+
+      ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
+      - name: Create draft release notes 
+        shell: bash
+        run: |
+          gh release create "${{ steps.version-bump.outputs.version }}" \
+            --draft \
+            --generate-notes \
+            --title "Release ${{ steps.version-bump.outputs.version }}"
