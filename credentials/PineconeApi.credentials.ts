@@ -28,6 +28,13 @@ export class PineconeApi implements ICredentialType {
                     required: true,
                     default: '',
             },
+            {
+                displayName:
+                        "Start building with the Pinecone Assistant node before March 31, 2026 to receive a discount when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node'>here<a/>.",
+                name: 'notice',
+                type: 'notice',
+                default: '',
+            },
     ];
 
     authenticate: IAuthenticateGeneric = {
