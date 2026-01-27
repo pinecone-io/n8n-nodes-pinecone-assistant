@@ -42,8 +42,6 @@ export class PineconeApi implements ICredentialType {
             properties: {
                     headers: {
                             'Api-key': '={{$credentials.apiKey}}',
-                            'X-Pinecone-API-Version': '2025-10',
-                            'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}:credentials`,
                     },
             },
     };
@@ -52,6 +50,10 @@ export class PineconeApi implements ICredentialType {
             request: {
                     baseURL: 'https://api.pinecone.io/assistant',
                     url: '/assistants',
+                    headers: {
+                        'X-Pinecone-API-Version': '2025-10',
+                        'User-Agent': `${packageInfo.name} v${packageInfo.version}; source_tag=${packageInfo.defaultSourceTag}:credentials`,
+                    },
             },
     };
 }
