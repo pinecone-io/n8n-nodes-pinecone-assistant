@@ -128,7 +128,7 @@ This node was tested locally against n8n 1.121.3.
 
 ## Usage
 
-Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/assistant/quickstart#n8n) for n8n to get started with a pre-built workflow using this node, an Assistant, and Open AI.
+Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/assistant/quickstart/n8n-quickstart) for n8n to get started with a pre-built workflow using this node, an Assistant, and Open AI.
 
 ## Resources
 
