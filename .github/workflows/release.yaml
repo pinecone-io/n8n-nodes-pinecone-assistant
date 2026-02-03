@@ -63,6 +63,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      ##### LINT - required by n8n review process
+      - name: Lint
+        run: pnpm run lint
+
+      ##### BUILD
+      - name: Build
+        run: pnpm run build
+
       ##### VERSION BUMP #####
       - name: 'Bump version'
         shell: bash
@@ -72,6 +80,16 @@ jobs:
           newVersion=$(jq -r '.version' package.json)
           echo "version=$newVersion" >> $GITHUB_OUTPUT
           echo "Bumped version to $newVersion"
+
+      ##### UPDATE version.json
+      - name: Update version.json
+        env:
+          npm_package_version: ${{ steps.version-bump.outputs.version }}
+        run: pnpm run version
+
+      ##### GENERATE CHANGELOG - required by n8n review process
+      - name: Generate changelog
+        run: npx auto-changelog -p
 
       ##### COMMIT AND TAG VERSION CHANGES #####
       - name: Configure git CLI
