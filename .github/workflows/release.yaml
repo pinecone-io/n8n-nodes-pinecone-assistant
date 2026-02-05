@@ -49,16 +49,17 @@ jobs:
             exit 1
           fi
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24.x'
-          cache: "pnpm"
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: latest
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: "pnpm"
+
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
