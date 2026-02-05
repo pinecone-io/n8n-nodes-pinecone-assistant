@@ -189,19 +189,25 @@ When making changes to a version of the node, ensure backwards compatibility wit
 
 6. Release the node and publish to npm
 
-Login to npm.
+Releases are performed via the **Release: NPM Package** GitHub Actions workflow. The workflow:
 
-```bash
-$ pnpm login
-```
+- Lints and builds the project
+- Bumps the version in `package.json` (patch, minor, or major)
+- Updates `nodes/PineconeAssistant/version.json`
+- Regenerates `CHANGELOG.md` with [auto-changelog](https://github.com/CookPete/auto-changelog)
+- Commits the changes and creates a git tag
+- Builds again (so the published package contains the new version)
+- Publishes to npm with provenance
+- Pushes the commit and tag to the repository
+- Creates a draft GitHub release
 
-The release command builds, lints, updates the changelog, updates the version number in `package.json` and `version.json`, creates git tags, creates a GitHub release, and publishes the package to npm.
+To release a new version:
 
-Note: This executes the same steps as `n8n-node release` plus updates the `version.json` file.
-
-```bash
-$ pnpm run release
-```
+1. Open the **Actions** tab in the repository, select **Release: NPM Package**, and click **Run workflow**.
+2. Optionally choose a branch to release from (default is the repository default branch).
+3. Choose the release type: **patch** (bug fixes), **minor** (new features, backwards compatible), or **major** (breaking changes).
+4. Run the workflow. It uses the `npm-publish` environment; ensure npm trusted publishing (or your chosen auth) is configured for that environment.
+5. After the run completes, publish the draft GitHub release from the **Releases** page if you use GitHub releases.
 
 ## Contributing
 
