@@ -92,7 +92,7 @@ jobs:
       - name: Commit and tag version changes
         shell: bash
         run: |
-          git add package.json version.json CHANGELOG.md
+          git add package.json nodes/PineconeAssistant/version.json CHANGELOG.md
           newVersion="${{ steps.version-bump.outputs.version }}"
           git commit -m "[skip ci] Publish release $newVersion"
           git tag "v$newVersion"
