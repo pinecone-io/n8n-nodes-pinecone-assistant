@@ -102,15 +102,12 @@ jobs:
       - name: Commit and tag version changes
         shell: bash
         run: |
-          git add . # commit version.json and package.json changes
+          git add package.json version.json CHANGELOG.md
           newVersion="${{ steps.version-bump.outputs.version }}"
           git commit -m "[skip ci] Publish release $newVersion"
-          git tag "$newVersion"
+          git tag "v$newVersion"
 
       ##### NPM PUBLISH #####
-      - name: Build before publish
-        shell: bash
-        run: pnpm run build  
       - name: Publish to npm
         shell: bash
         run: pnpm publish --provenance --tag latest --no-git-checks
@@ -119,20 +116,19 @@ jobs:
       - name: Push commit and tag
         shell: bash
         run: |
-          newVersion="${{ steps.version-bump.outputs.version }}"
           if [ -n "${{ github.event.inputs.ref }}" ]; then
             git push origin "${{ github.event.inputs.ref }}" --follow-tags
-            git push origin "v$newVersion"
           else
             git push --follow-tags
-            git push origin "v$newVersion"
           fi
 
       ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
       - name: Create draft release notes 
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version-bump.outputs.version }}" \
+          gh release create "v${{ steps.version-bump.outputs.version }}" \
             --draft \
             --generate-notes \
             --title "Release ${{ steps.version-bump.outputs.version }}"
