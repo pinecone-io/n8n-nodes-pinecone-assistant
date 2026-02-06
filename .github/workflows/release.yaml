@@ -69,11 +69,7 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
-      ##### BUILD
-      - name: Build
-        run: pnpm run build
-
-      ##### VERSION BUMP #####
+      ##### VERSION BUMP of package.json and version.json #####
       - name: 'Bump version'
         shell: bash
         id: version-bump
@@ -82,12 +78,6 @@ jobs:
           newVersion=$(jq -r '.version' package.json)
           echo "version=$newVersion" >> $GITHUB_OUTPUT
           echo "Bumped version to $newVersion"
-
-      ##### UPDATE version.json
-      - name: Update version.json
-        env:
-          npm_package_version: ${{ steps.version-bump.outputs.version }}
-        run: pnpm run version
 
       ##### GENERATE CHANGELOG - required by n8n review process
       - name: Generate changelog
@@ -108,6 +98,9 @@ jobs:
           git tag "v$newVersion"
 
       ##### NPM PUBLISH #####
+      - name: Build before publish
+        shell: bash
+        run: pnpm run build
       - name: Publish to npm
         shell: bash
         run: pnpm publish --provenance --tag latest --no-git-checks
