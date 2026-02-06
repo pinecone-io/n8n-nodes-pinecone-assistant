@@ -69,11 +69,7 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
-      ##### BUILD
-      - name: Build
-        run: pnpm run build
-
-      ##### VERSION BUMP #####
+      ##### VERSION BUMP of package.json and version.json #####
       - name: 'Bump version'
         shell: bash
         id: version-bump
@@ -82,12 +78,6 @@ jobs:
           newVersion=$(jq -r '.version' package.json)
           echo "version=$newVersion" >> $GITHUB_OUTPUT
           echo "Bumped version to $newVersion"
-
-      ##### UPDATE version.json
-      - name: Update version.json
-        env:
-          npm_package_version: ${{ steps.version-bump.outputs.version }}
-        run: pnpm run version
 
       ##### GENERATE CHANGELOG - required by n8n review process
       - name: Generate changelog
@@ -102,15 +92,15 @@ jobs:
       - name: Commit and tag version changes
         shell: bash
         run: |
-          git add . # commit version.json and package.json changes
+          git add package.json version.json CHANGELOG.md
           newVersion="${{ steps.version-bump.outputs.version }}"
           git commit -m "[skip ci] Publish release $newVersion"
-          git tag "$newVersion"
+          git tag "v$newVersion"
 
       ##### NPM PUBLISH #####
       - name: Build before publish
         shell: bash
-        run: pnpm run build  
+        run: pnpm run build
       - name: Publish to npm
         shell: bash
         run: pnpm publish --provenance --tag latest --no-git-checks
@@ -119,20 +109,19 @@ jobs:
       - name: Push commit and tag
         shell: bash
         run: |
-          newVersion="${{ steps.version-bump.outputs.version }}"
           if [ -n "${{ github.event.inputs.ref }}" ]; then
             git push origin "${{ github.event.inputs.ref }}" --follow-tags
-            git push origin "v$newVersion"
           else
             git push --follow-tags
-            git push origin "v$newVersion"
           fi
 
       ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
       - name: Create draft release notes 
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version-bump.outputs.version }}" \
+          gh release create "v${{ steps.version-bump.outputs.version }}" \
             --draft \
             --generate-notes \
             --title "Release ${{ steps.version-bump.outputs.version }}"
