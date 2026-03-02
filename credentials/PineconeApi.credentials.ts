@@ -21,6 +21,13 @@ export class PineconeApi implements ICredentialType {
 
     properties: INodeProperties[] = [
             {
+                displayName:
+                        "This credential type is deprecated. Please update to the latest version of the Pinecone Assistant node.",
+                name: 'notice',
+                type: 'notice',
+                default: '',
+            },
+            {
                     displayName: 'API Key',
                     name: 'apiKey',
                     type: 'string',

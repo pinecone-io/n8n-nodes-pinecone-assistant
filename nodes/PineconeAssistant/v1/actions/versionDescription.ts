@@ -14,7 +14,7 @@ export const versionDescription: INodeTypeDescription = {
     displayName: 'Pinecone Assistant',
     name: 'pineconeAssistant',
     group: ['transform'],
-    version: 1,
+    version: [1, 1.2],
     description: 'A Pinecone Assistant node for n8n',
     defaults: {
         name: 'Pinecone Assistant',
@@ -25,10 +25,35 @@ export const versionDescription: INodeTypeDescription = {
         {
             name: 'pineconeAssistantApi',
             required: true,
+            displayOptions: {
+                show: {
+                    '@version': [1]
+                }
+            }
+        },
+        {
+            name: 'pineconeApi',
+            required: true,
+            displayOptions: {
+                show: {
+                    '@version': [1.2]
+                }
+            }
         },
     ],
     subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
     properties: [
+        {
+            displayName: '<strong>New node version available:</strong> get the latest version with added features from the nodes panel.',
+            name: 'oldVersionNotice',
+            type: 'notice',
+            default: '',
+            displayOptions: {
+                show: {
+                    '@version': [1]
+                }
+            }
+        },
         // Resources
         {
             displayName: 'Resource',

@@ -72,6 +72,22 @@ function hasFileData(body: object): boolean {
 }
 
 /**
+ * Resolve which credential name the node uses for the current context (by node version).
+ * Version 1 uses the deprecated pineconeAssistantApi.
+ * Version 1.2 uses pineconeApi.
+ */
+function getCredentialNameForContext(
+	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
+): 'pineconeAssistantApi' | 'pineconeApi' {
+	const node = 'getNode' in this ? this.getNode() : null;
+	const version = node?.typeVersion;
+	if (version === 1) {
+		return 'pineconeAssistantApi';
+	}
+	return 'pineconeApi';
+}
+
+/**
  * Make an API request to Pinecone Assistant
  */
 export async function apiRequest(
@@ -108,7 +124,8 @@ export async function apiRequest(
         delete options.body;
 	}
 
-	return await this.helpers.httpRequestWithAuthentication.call(this, 'pineconeAssistantApi', options);
+	const credentialName = getCredentialNameForContext.call(this);
+	return await this.helpers.httpRequestWithAuthentication.call(this, credentialName, options);
 }
 
 export async function getFiles(this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions, assistantName: string, assistantHostUrl: string, filterValues: IDataObject | null | undefined, sourceTag?: string) {
