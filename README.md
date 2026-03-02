@@ -124,7 +124,7 @@ To use the Pinecone Assistant node, you'll need a Pinecone account and an API ke
 
 ## Compatibility
 
-This node was tested locally against n8n 1.121.3.
+This node was tested locally against n8n 2.9.4.
 
 ## Usage
 
@@ -137,7 +137,8 @@ Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/ass
 
 ## Version history
 
-- V1
+- V1 - Initial version of the Pinecone Assistant node
+- V1.2 - Deprecates the `pineconeAssistantApi` credential in favor of `pineconeApi`
 
 ## Node development
 
