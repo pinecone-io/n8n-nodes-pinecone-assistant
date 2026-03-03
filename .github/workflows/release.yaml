@@ -109,10 +109,13 @@ jobs:
       - name: Push commit and tag
         shell: bash
         run: |
+          newVersion="${{ steps.version-bump.outputs.version }}"
           if [ -n "${{ github.event.inputs.ref }}" ]; then
             git push origin "${{ github.event.inputs.ref }}" --follow-tags
+            git push origin "v$newVersion"
           else
             git push --follow-tags
+            git push origin "v$newVersion"
           fi
 
       ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
