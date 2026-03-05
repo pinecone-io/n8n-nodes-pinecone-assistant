@@ -130,11 +130,6 @@ This node was tested locally against n8n 1.121.3.
 
 Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/assistant/quickstart/n8n-quickstart) for n8n to get started with a pre-built workflow using this node, an Assistant, and Open AI.
 
-## Resources
-
-* [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* _Link to app/service documentation._
-
 ## Version history
 
 - V1

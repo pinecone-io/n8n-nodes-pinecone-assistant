@@ -37,6 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
+          fetch-depth: 0 # We do this so that we generate the full changelog
 
       # We need to validate the ref is a branch so that we have somewhere to push the commit and tag
       # at the end of the workflow. For this reason, naked SHAs are not allowed.
@@ -109,11 +110,15 @@ jobs:
       - name: Push commit and tag
         shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.ref }}" ]; then
-            git push origin "${{ github.event.inputs.ref }}" --follow-tags
-          else
-            git push --follow-tags
-          fi
+         if [ -n "${{ github.event.inputs.ref }}" ]; then
+           git push origin "${{ github.event.inputs.ref }}" --follow-tags
+         else
+           git push --follow-tags
+         fi
+         
+         # Ensure tag is pushed
+         newVersion="${{ steps.version-bump.outputs.version }}"
+         git push origin "v$newVersion"
 
       ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
       - name: Create draft release notes 
