@@ -110,14 +110,15 @@ jobs:
       - name: Push commit and tag
         shell: bash
         run: |
-          newVersion="${{ steps.version-bump.outputs.version }}"
-          if [ -n "${{ github.event.inputs.ref }}" ]; then
-            git push origin "${{ github.event.inputs.ref }}" --follow-tags
-            git push origin "v$newVersion"
-          else
-            git push --follow-tags
-            git push origin "v$newVersion"
-          fi
+         if [ -n "${{ github.event.inputs.ref }}" ]; then
+           git push origin "${{ github.event.inputs.ref }}" --follow-tags
+         else
+           git push --follow-tags
+         fi
+         
+         # Ensure tag is pushed
+         newVersion="${{ steps.version-bump.outputs.version }}"
+         git push origin "v$newVersion"
 
       ##### CREATE DRAFT RELEASE NOTES ON GITHUB #####
       - name: Create draft release notes 
