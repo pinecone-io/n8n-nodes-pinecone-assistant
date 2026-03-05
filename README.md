@@ -180,13 +180,14 @@ $ pnpm test
 
 5. Versioning the node
 
-When making changes to a version of the node, ensure backwards compatibility with the current version. If it cannot be backwards compatible, create a new version:
+When making changes to a version of the node, ensure backwards compatibility with the current version as all existing workflows will use the previous version until it is manually migrated. If it cannot be backwards compatible, create a new version of the node:
 
 - In `PineconeAssistant.node.ts`, change `defaultVersion` to the new version number
 - In `PineconeAssistant.node.ts`, update the list of `nodeVersions`
 - Add a new version directory, named `v#` (i.e. `v2`)
-- In the new version directory, add the versioned node, `PineconeAssistantV2.node.ts` and all all functionality.
+- In the new version directory, add the versioned node, `PineconeAssistantV2.node.ts` and all the functionality.
 
+Note: It is possible to continue using the previous version's functionality and configure per version using `displayOptions`, etc. See version 1.2.
 
 6. Release the node and publish to npm
 
