@@ -38,7 +38,7 @@ export class PineconeApi implements ICredentialType {
             },
             {
                 displayName:
-                        "Start building with Pinecone before May 1, 2026 to receive platform credits when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node'>here<a/>.",
+                        "Start building with Pinecone before May 1, 2026 to receive platform credits when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node' target='_blank' rel='noopener noreferrer'>here</a>.",
                 name: 'notice',
                 type: 'notice',
                 default: '',
