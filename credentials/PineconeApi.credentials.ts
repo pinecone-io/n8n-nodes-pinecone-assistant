@@ -10,7 +10,8 @@ import * as packageInfo from '../nodes/PineconeAssistant/version.json';
 export class PineconeApi implements ICredentialType {
     name = 'pineconeAssistantApi';
 
-    displayName = 'Pinecone Assistant API';
+    // eslint-disable-next-line n8n-nodes-base/cred-class-field-display-name-missing-api
+    displayName = 'Pinecone Assistant API - DEPRECATED';
 
     icon = {
             light: 'file:../nodes/PineconeAssistant/pinecone.svg',
@@ -28,19 +29,22 @@ export class PineconeApi implements ICredentialType {
                 default: '',
             },
             {
-                    displayName: 'API Key',
-                    name: 'apiKey',
-                    type: 'string',
-                    typeOptions: { password: true },
-                    required: true,
-                    default: '',
+                displayName: 'API Key',
+                name: 'apiKey',
+                type: 'string',
+                typeOptions: { password: true },
+                required: true,
+                default: '',
             },
             {
                 displayName:
-                        "Start building with the Pinecone Assistant node before May 1, 2026 to receive a discount when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node'>here<a/>.",
+                        "Start building with Pinecone before May 1, 2026 to receive platform credits when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node'>here<a/>.",
                 name: 'notice',
                 type: 'notice',
                 default: '',
+                displayOptions: {
+                        hideOnCloud: true
+                }
             },
     ];
 

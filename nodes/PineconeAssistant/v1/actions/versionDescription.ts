@@ -23,6 +23,7 @@ export const versionDescription: INodeTypeDescription = {
     outputs: [NodeConnectionTypes.Main],
     credentials: [
         {
+            displayName: 'Credential to connect with',
             name: 'pineconeAssistantApi',
             required: true,
             displayOptions: {
@@ -32,6 +33,7 @@ export const versionDescription: INodeTypeDescription = {
             }
         },
         {
+            displayName: 'Credential to connect with',
             name: 'pineconeApi',
             required: true,
             displayOptions: {
@@ -52,6 +54,17 @@ export const versionDescription: INodeTypeDescription = {
                 show: {
                     '@version': [1]
                 }
+            }
+        },
+        {
+            // eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
+            displayName:
+                    "Start building with Pinecone before May 1, 2026 to receive platform credits when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node'>here<a/>.",
+            name: 'callout',
+            type: 'callout',
+            default: '',
+            displayOptions: {
+                hideOnCloud: true
             }
         },
         // Resources
