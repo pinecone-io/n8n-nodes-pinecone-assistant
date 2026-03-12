@@ -73,6 +73,7 @@ describe('genericFunctions', () => {
 			logger: {
 				debug: jest.fn(),
 			},
+			getNode: () => ({ typeVersion: 1.2 }),
 		} as unknown as jest.Mocked<IExecuteFunctions>;
 	});
 
@@ -100,7 +101,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'GET',
 					url: `${baseUrl}/assistant/${endpoint}`,
@@ -114,6 +115,30 @@ describe('genericFunctions', () => {
 			);
 			expect(mockHttpRequest.mock.calls[0][1]).not.toHaveProperty('body');
 			expect(result).toEqual(mockResponse);
+		});
+
+		it('should use pineconeAssistantApi when node version is 1', async () => {
+			// Arrange: override getNode to return version 1
+			const mockWithVersion1 = {
+				...mockExecuteFunctions,
+				getNode: () => ({ typeVersion: 1 }),
+			} as jest.Mocked<IExecuteFunctions>;
+			const method = 'GET';
+			const baseUrl = 'https://api.pinecone.io';
+			const endpoint = 'assistants';
+			const body = {};
+			const mockResponse = { assistants: [] };
+
+			mockHttpRequest.mockResolvedValue(mockResponse);
+
+			// Act
+			await apiRequest.call(mockWithVersion1, method, baseUrl, endpoint, body);
+
+			// Assert
+			expect(mockHttpRequest).toHaveBeenCalledWith(
+				'pineconeAssistantApi',
+				expect.anything(),
+			);
 		});
 
 		it('should make a POST request with JSON body', async () => {
@@ -137,7 +162,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'POST',
 					url: `${baseUrl}/assistant/${endpoint}`,
@@ -183,7 +208,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'POST',
 					url: `${baseUrl}/assistant/${endpoint}`,
@@ -313,7 +338,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					qs: {},
 				}),
@@ -362,7 +387,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
@@ -396,7 +421,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
@@ -429,7 +454,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					headers: {
 						'X-Pinecone-API-Version': '2025-10',
@@ -463,7 +488,7 @@ describe('genericFunctions', () => {
 
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'GET',
 					url: `${assistantHostUrl}/assistant/files/${assistantName}`,
@@ -701,6 +726,7 @@ describe('genericFunctions', () => {
 				logger: {
 					debug: jest.fn(),
 				},
+				getNode: () => ({ typeVersion: 1.2 }),
 			} as unknown as jest.Mocked<IExecuteFunctions>;
 		});
 
@@ -738,7 +764,7 @@ describe('genericFunctions', () => {
 			expect(mockExecuteFunctionsForUpload.helpers.assertBinaryData).toHaveBeenCalledWith(index, inputDataFieldName);
 			expect(mockExecuteFunctionsForUpload.helpers.getBinaryDataBuffer).toHaveBeenCalledWith(index, inputDataFieldName);
 			expect(mockHttpRequestForUpload).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'POST',
 					url: expect.stringContaining('files/test-assistant?metadata='),
@@ -1121,7 +1147,7 @@ describe('genericFunctions', () => {
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledTimes(1);
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'DELETE',
 					url: `${assistantHostUrl}/assistant/files/${assistantName}/${fileIds[0]}`,
@@ -1146,21 +1172,21 @@ describe('genericFunctions', () => {
 			// Assert
 			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'DELETE',
 					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-456`,
 				}),
 			);
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'DELETE',
 					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-789`,
 				}),
 			);
 			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'pineconeAssistantApi',
+				'pineconeApi',
 				expect.objectContaining({
 					method: 'DELETE',
 					url: `${assistantHostUrl}/assistant/files/${assistantName}/file-101`,

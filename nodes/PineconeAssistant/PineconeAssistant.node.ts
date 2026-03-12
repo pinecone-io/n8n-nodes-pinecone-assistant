@@ -12,11 +12,12 @@ export class PineconeAssistant extends VersionedNodeType {
 			group: ['transform'],
 			subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
 			description: 'A Pinecone Assistant node for n8n',
-			defaultVersion: 1,
+			defaultVersion: 1.2,
 		};
 
 		const nodeVersions: IVersionedNodeType['nodeVersions'] = {
 			1: new PineconeAssistantV1(baseDescription),
+			1.2: new PineconeAssistantV1(baseDescription),
 		};
 
 		super(nodeVersions, baseDescription);

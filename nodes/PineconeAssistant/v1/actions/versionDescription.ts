@@ -14,7 +14,7 @@ export const versionDescription: INodeTypeDescription = {
     displayName: 'Pinecone Assistant',
     name: 'pineconeAssistant',
     group: ['transform'],
-    version: 1,
+    version: [1, 1.2],
     description: 'A Pinecone Assistant node for n8n',
     defaults: {
         name: 'Pinecone Assistant',
@@ -23,12 +23,50 @@ export const versionDescription: INodeTypeDescription = {
     outputs: [NodeConnectionTypes.Main],
     credentials: [
         {
+            displayName: 'Credential to connect with',
             name: 'pineconeAssistantApi',
             required: true,
+            displayOptions: {
+                show: {
+                    '@version': [1]
+                }
+            }
+        },
+        {
+            displayName: 'Credential to connect with',
+            name: 'pineconeApi',
+            required: true,
+            displayOptions: {
+                show: {
+                    '@version': [1.2]
+                }
+            }
         },
     ],
     subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
     properties: [
+        {
+            displayName: '<strong>New node version available:</strong> get the latest version with added features from the nodes panel.',
+            name: 'oldVersionNotice',
+            type: 'notice',
+            default: '',
+            displayOptions: {
+                show: {
+                    '@version': [1]
+                }
+            }
+        },
+        {
+            // eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
+            displayName:
+                    "Start building with Pinecone before May 1, 2026 to receive platform credits when upgrading to Pinecone's Standard plan. Learn more and claim this offer <a href='https://app.pinecone.io/?integration=pinecone-n8n-assistant-node' target='_blank' rel='noopener noreferrer'>here</a>.",
+            name: 'callout',
+            type: 'callout',
+            default: '',
+            displayOptions: {
+                hideOnCloud: true
+            }
+        },
         // Resources
         {
             displayName: 'Resource',

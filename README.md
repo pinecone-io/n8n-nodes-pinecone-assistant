@@ -124,7 +124,7 @@ To use the Pinecone Assistant node, you'll need a Pinecone account and an API ke
 
 ## Compatibility
 
-This node was tested locally against n8n 1.121.3.
+This node was tested locally against n8n 2.9.4.
 
 ## Usage
 
@@ -132,7 +132,8 @@ Refer to our [Pinecone Assistant quickstart](https://docs.pinecone.io/guides/ass
 
 ## Version history
 
-- V1
+- V1 - Initial version of the Pinecone Assistant node
+- V1.2 - Deprecates the `pineconeAssistantApi` credential in favor of `pineconeApi`
 
 ## Node development
 
@@ -174,13 +175,14 @@ $ pnpm test
 
 5. Versioning the node
 
-When making changes to a version of the node, ensure backwards compatibility with the current version. If it cannot be backwards compatible, create a new version:
+When making changes to a version of the node, ensure backwards compatibility with the current version as all existing workflows will use the previous version until it is manually migrated. If it cannot be backwards compatible, create a new version of the node:
 
 - In `PineconeAssistant.node.ts`, change `defaultVersion` to the new version number
 - In `PineconeAssistant.node.ts`, update the list of `nodeVersions`
 - Add a new version directory, named `v#` (i.e. `v2`)
-- In the new version directory, add the versioned node, `PineconeAssistantV2.node.ts` and all all functionality.
+- In the new version directory, add the versioned node, `PineconeAssistantV2.node.ts` and all the functionality.
 
+Note: It is possible to continue using the previous version's functionality and configure per version using `displayOptions`, etc. See version 1.2.
 
 6. Release the node and publish to npm
 
