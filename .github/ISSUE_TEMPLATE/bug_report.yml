@@ -1,0 +1,75 @@
+name: Bug Report
+description: Report a bug with the Pinecone Assistant n8n node
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us investigate.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Configure the node with...
+        2. Run the workflow...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: n8n-deployment
+    attributes:
+      label: n8n Deployment Type
+      description: How are you running n8n?
+      options:
+        - n8n Cloud
+        - Self-hosted
+    validations:
+      required: true
+
+  - type: input
+    id: n8n-version
+    attributes:
+      label: n8n Version
+      description: What version of n8n are you running? (e.g. 2.16.2)
+      placeholder: "2.16.2"
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node Version
+      description: What version of the Pinecone Assistant node are you using? (Check your installed community nodes)
+      placeholder: "0.1.10"
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Debug info
+      description: This can be found under Help > About n8n > Copy debug information
+      placeholder: "# Debug info..."
+    validations:
+      required: true
