@@ -58,10 +58,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "pnpm": {
-        "overrides": {
-            "minimatch@9": "10.2.3"
-        }
     }
 }
