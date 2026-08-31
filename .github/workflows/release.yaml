@@ -34,7 +34,7 @@ jobs:
     environment: npm-publish
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
           fetch-depth: 0 # We do this so that we generate the full changelog
